@@ -50,6 +50,10 @@ h2{font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;c
 .faves dt{color:var(--muted)}
 .faves dd{margin:0}
 
+.photo{margin:12px 0 0;max-width:24rem;display:flex;flex-direction:column;gap:8px}
+.photo img{display:block;width:100%;height:auto;max-width:100%;border-radius:2px;border-bottom:2px solid var(--blue)}
+.photo figcaption{font-size:15px;font-style:italic;color:var(--muted)}
+
 .list{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
 .list li{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
 .list .when{font-size:15px;color:var(--muted);white-space:nowrap;padding-top:3px}
@@ -103,6 +107,10 @@ h2{font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;c
         <div><dt>Favorite food</dt><dd>Omakase</dd></div>
         <div><dt>Favorite trip so far</dt><dd>Patagonia</dd></div>
       </dl>
+      <figure class="photo">
+        <img src="patagonia.jpg" alt="Mountains and lakes in Patagonia under a wide blue sky" width="1200" height="1600" loading="lazy">
+        <figcaption>Patagonia</figcaption>
+      </figure>
     </section>
 
     <!-- INVESTING -->
