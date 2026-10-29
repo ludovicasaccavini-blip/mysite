@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ludovica Saccavini</title>
+<meta name="description" content="Investor in deep tech and AI infrastructure. Builder at heart.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<style>
+/* Layout: sidebar with name, tagline, nav and links on the left; one page of text on the right. One font, light, one quiet green for links. */
+:root{
+  --bg:#FCFCFA; --ink:#1B211E; --muted:#66706B; --rule:#E1E5E0; --accent:#0B5D3B;
+  --font:"Newsreader","Iowan Old Style",Georgia,serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:19px;line-height:1.6}
+.wrap{max-width:960px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:64px;
+  padding-block:72px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+aside{display:flex;flex-direction:column;gap:22px;position:sticky;top:40px;align-self:start}
+aside .name{font-weight:500;font-size:20px;color:var(--ink);text-decoration:none}
+.tag{font-style:italic;color:var(--muted);font-size:16px;line-height:1.45;margin:0}
+nav{display:flex;flex-direction:column;gap:6px;font-size:17px}
+nav a{color:var(--muted);text-decoration:none;padding:2px 0;transition:color .15s}
+nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
+nav a[aria-current="page"]::before{content:"";display:inline-block;width:10px;height:1px;background:var(--ink);vertical-align:middle;margin-right:8px}
+.connect{display:flex;flex-direction:column;gap:6px;font-size:15px}
+.connect a,.connect button{color:var(--muted);text-decoration:none;font:inherit;background:none;border:0;padding:2px 0;text-align:left;cursor:pointer;transition:color .15s}
+.connect a:hover,.connect button:hover{color:var(--accent)}
+.email{font-size:14px;color:var(--muted);user-select:all;word-break:break-all}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+main{max-width:34rem;min-width:0}
+section{display:flex;flex-direction:column;gap:20px}
+p{margin:0;text-wrap:pretty}
+main a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1.5px;transition:color .15s}
+main a:hover{color:var(--accent)}
+h2{font-weight:500;font-size:19px;margin:12px 0 0}
+
+.faves{margin:12px 0 0;border:1px solid var(--rule);border-radius:8px;padding:4px 18px;max-width:24rem}
+.faves div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:17px}
+.faves div:last-child{border-bottom:0}
+.faves dt{color:var(--muted)}
+.faves dd{margin:0}
+
+.list{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.list li{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.list .when{font-size:15px;color:var(--muted);white-space:nowrap;padding-top:3px}
+
+.thesis{border-left:2px solid var(--rule);padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.thesis .q{font-style:italic}
+.thesis .more{font-size:17px}
+
+@media (max-width:720px){
+  .wrap{grid-template-columns:1fr;gap:40px;padding-block:40px 48px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+  aside{position:static;gap:16px}
+  nav{flex-direction:row;gap:22px}
+  nav a{min-height:44px;display:flex;align-items:center}
+  nav a[aria-current="page"]::before{display:none}
+  nav a[aria-current="page"]{text-decoration:underline;text-underline-offset:6px}
+  .connect{flex-direction:row;flex-wrap:wrap;gap:18px}
+  .connect a,.connect button{min-height:44px;display:flex;align-items:center}
+  body{font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside>
+    <a class="name" href="#about">Ludovica Saccavini</a>
+    <p class="tag">Investor in deep tech and AI infrastructure. Builder at heart.</p>
+    <nav aria-label="Main">
+      <a href="#about" data-view="about">About</a>
+      <a href="#investing" data-view="investing">Investing</a>
+      <a href="#things" data-view="things">Things</a>
+    </nav>
+    <div class="connect">
+      <a href="https://www.linkedin.com/in/ludovicasaccavini" target="_blank" rel="noopener">LinkedIn</a>
+      <button type="button" id="copy">Copy email</button>
+      <a href="resume.pdf" target="_blank" rel="noopener">Download résumé</a>
+      <span class="email" id="addr">ls2327@cornell.edu</span>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ABOUT -->
+    <section id="v-about">
+      <p>I'm Ludovica. I've been in venture my whole career.</p>
+      <p>I started as the right hand to two founding teams, at Pectus in pre seed and at Vanilla Steel through its Series A. Then I switched sides of the table and invested at Foundamental and Vinthera, across pre seed, growth and fund of funds.</p>
+      <p>I like building things. I've built agents and internal workflows, including a new investment management system for my previous firm. Now I'm taking my first shot at building something bigger with <a href="funddesk.html">FundDesk</a>.</p>
+      <p>Today I'm doing my MBA at Cornell Tech in New York. Outside work I love sports, food and travel.</p>
+      <dl class="faves">
+        <div><dt>Favorite sport</dt><dd>Horse riding</dd></div>
+        <div><dt>Favorite food</dt><dd>Omakase</dd></div>
+        <div><dt>Favorite trip so far</dt><dd>Patagonia</dd></div>
+      </dl>
+    </section>
+
+    <!-- INVESTING -->
+    <section id="v-investing" hidden>
+      <p>I focus on deep tech and defense, AI infrastructure, industrial tech and construction tech.</p>
+      <p>At Vinthera I helped drive a $20M first close in 8 months and sourced deals that led to $15M in commitments. At Foundamental I helped deploy over $3M and presented 20+ companies at investment committee.</p>
+      <h2>Current thesis</h2>
+      <div class="thesis">
+        <p class="q">Every company will need secure hosting for its agents.</p>
+        <p>Agents are leaving employees' laptops and starting to work in teams. The winners host them securely, set house rules for how they talk to each other, and prove they are safe.</p>
+        <p class="more"><a href="thesis.html">Read the full thesis</a></p>
+      </div>
+    </section>
+
+    <!-- THINGS
+         To add a new item: copy one <li> ... </li> block below, paste it under the others,
+         and change the text, the link (href) and the date. -->
+    <section id="v-things" hidden>
+      <p>What I'm working on right now.</p>
+      <ul class="list">
+        <li><span><a href="funddesk.html">Building FundDesk</a> with a Cornell Tech classmate</span><span class="when">2026</span></li>
+        <li><span>Supporting Cornell Tech founders with office hours for the <a href="https://tech.cornell.edu/runway" target="_blank" rel="noopener">Runway Program</a></span><span class="when">Fall 26</span></li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  var views=["about","investing","things"];
+  function show(){
+    var v=(location.hash||"#about").slice(1); if(views.indexOf(v)<0) v="about";
+    views.forEach(function(n){document.getElementById("v-"+n).hidden=(n!==v);});
+    document.querySelectorAll("nav a").forEach(function(a){
+      if(a.dataset.view===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+    });
+  }
+  window.addEventListener("hashchange",show); show();
+
+  var btn=document.getElementById("copy"), addr=document.getElementById("addr");
+  btn.addEventListener("click",function(){
+    var done=function(){btn.textContent="Copied";setTimeout(function(){btn.textContent="Copy email";},1600);};
+    var fallback=function(){var r=document.createRange();r.selectNodeContents(addr);var s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Selected, press copy";};
+    try{navigator.clipboard.writeText(addr.textContent).then(done,fallback);}catch(e){fallback();}
+  });
+})();
+</script>
+</body>
+</html>

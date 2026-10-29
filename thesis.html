@@ -1,0 +1,236 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Agent Hosting Thesis</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column; the hero states the thesis, then a three-layer stack (hosting, house rules, proof) carries the argument */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#15202b; --muted:#566473; --line:#d9e0e7;
+  --home:#2457c5; --home-soft:#e4ecfb;
+  --rules:#b5571a; --rules-soft:#fbeadf;
+  --proof:#1d7a5a; --proof-soft:#e0f2ea;
+  --taken:#8a96a3;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(32px,5.4vw,54px);line-height:1.04;font-weight:700}
+h2{font-size:clamp(24px,3.2vw,32px);line-height:1.1;font-weight:700}
+h3{font-size:20px;line-height:1.2;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:18px;min-width:0}
+.lede{max-width:62ch;color:var(--muted);font-size:18px}
+a{color:var(--home)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--home);outline-offset:2px}
+
+/* hero */
+.hero{display:flex;flex-direction:column;gap:18px}
+.hero h1 em{font-style:normal;color:var(--home)}
+.pithy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.pithy div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pithy .now{border-color:var(--home)}
+.pithy p{font-size:16px}
+.pithy .old p{color:var(--muted)}
+
+/* stack */
+.stack{display:flex;flex-direction:column;gap:10px}
+.layer{display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 20px;border-left:6px solid var(--c)}
+.layer .name{display:flex;flex-direction:column;gap:6px}
+.layer .name h3{color:var(--c)}
+.layer .q{font-size:15px;color:var(--muted)}
+.chip{display:inline-flex;align-self:flex-start;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--cs);color:var(--c)}
+.layer h4{margin:0 0 4px;font-family:var(--mono);font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.layer ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:15.5px}
+.l-home{--c:var(--home);--cs:var(--home-soft)}
+.l-rules{--c:var(--rules);--cs:var(--rules-soft)}
+.l-proof{--c:var(--proof);--cs:var(--proof-soft)}
+.taken{color:var(--taken)}
+
+/* findings */
+.finds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.find{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.find .num{font-family:var(--display);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.find p{font-size:15.5px}
+.find .src{font-size:13px;color:var(--muted)}
+.find.surprise{border-color:var(--rules);background:linear-gradient(var(--rules-soft),var(--surface) 70%)}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:640px}
+th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:0}
+td.k{font-family:var(--display);font-weight:600;white-space:nowrap}
+tr.pick td{background:var(--home-soft)}
+.tag{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:4px;background:var(--cs);color:var(--c);white-space:nowrap}
+
+/* risks */
+.risks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.risk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.risk.full{grid-column:1/-1}
+.risk ul{margin:0;padding-left:18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px;font-size:15px}
+
+/* people */
+.people{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.ptype{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ptype h3{font-size:16px}
+.ptype ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ptype li{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:14.5px;line-height:1.35}
+.ptype li span{display:block;color:var(--muted);font-size:13px}
+.ptype li.first{border-color:var(--home)}
+
+/* glossary */
+.gloss{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.gloss div{border-top:2px solid var(--line);padding-top:8px;font-size:14.5px;min-width:0}
+.gloss b{font-family:var(--display);display:block;font-size:16px}
+
+.sources{font-size:13.5px;color:var(--muted)}
+.sources ul{margin:6px 0 0;padding-left:18px;columns:2;column-gap:28px}
+.sources li{break-inside:avoid;margin-bottom:3px}
+.sources a{overflow-wrap:anywhere}
+
+@media (max-width:760px){
+  .layer{grid-template-columns:1fr;gap:10px}
+  .pithy,.finds,.risks{grid-template-columns:1fr}
+  .risk ul{grid-template-columns:1fr}
+  .people{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gloss{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sources ul{columns:1}
+}
+@media (max-width:420px){.people{grid-template-columns:1fr}}
+</style>
+
+<main class="wrap">
+  <p style="margin:0"><a href="index.html#investing" style="color:#566473;text-decoration:none;font-size:15px">&larr; Ludovica Saccavini</a></p>
+
+  <header class="hero">
+    <span class="eyebrow">Venture Fluent · Module 2 · Ludovica Saccavini · Oct 27, 2026</span>
+    <h1>Every company will need <em>secure hosting</em> for its agents.</h1>
+    <p class="lede">Agents are leaving employees' laptops and starting to work in teams. The winners host them securely, set house rules for how they talk to each other, and prove they are safe.</p>
+    <div class="pithy">
+      <div class="old"><span class="eyebrow">Class prototype</span><p>As swarms turn whole jobs into products and their owners struggle to control cost, safety and risk, the conversation between agents becomes the new control point. We back operators who write its rulebook.</p></div>
+      <div class="now"><span class="eyebrow">Rewritten</span><p>Agents are leaving laptops and starting to work in teams. We back the platforms that host them securely, let colleagues share the best ones, and set the house rules for how they talk, with proof a CISO or insurer can sign.</p></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="g-h">
+    <span class="eyebrow">Plain words</span>
+    <div class="gloss" id="g-h">
+      <div><b>Agent</b>Software that does a task on its own, like an assistant that drafts or files things.</div>
+      <div><b>Swarm</b>A team of agents. A lead agent splits the job and hands pieces to helpers.</div>
+      <div><b>A2A</b>Agent to agent. Agents messaging each other, like an email thread between bots.</div>
+      <div><b>Kill switch</b>An off button for agents. Now a standard feature.</div>
+    </div>
+  </section>
+
+  <section aria-labelledby="stack-h">
+    <span class="eyebrow">The thesis in three layers</span>
+    <h2 id="stack-h">Hosting, house rules, proof</h2>
+    <p class="lede">Each layer answers one question a CISO asks before saying yes. The giants own the basics; the open space is in the middle and on top.</p>
+    <div class="stack">
+      <article class="layer l-home">
+        <div class="name"><span class="chip">Where they run</span><h3>Hosting</h3><p class="q">Run agents on company servers, not laptops, in one library where colleagues copy what works.</p></div>
+        <div><h4>Why it matters</h4><ul><li>OpenClaw alone has 135,000+ running copies, mostly self hosted</li><li>About 60% of AI risks come from tools non developers built</li></ul></div>
+        <div><h4>Who is there</h4><ul><li class="taken">AWS, Microsoft, Google, OpenAI, Anthropic</li><li>Open: neutral hosting across vendors (Credal, Dust)</li></ul></div>
+      </article>
+      <article class="layer l-rules">
+        <div class="name"><span class="chip">How they talk</span><h3>House rules</h3><p class="q">Who may talk to whom, when to ask a human, what tone to use, built from how the company really works.</p></div>
+        <div><h4>Why it matters</h4><ul><li>1,200 test agents built their own chat channel; 700 joined a breach</li><li>Off buttons stop agents; nothing steers them</li></ul></div>
+        <div><h4>Who is there</h4><ul><li class="taken">Celonis Context Model, Microsoft Guardian Agents</li><li>Open: steering agent to agent work (Trace, Onyx)</li></ul></div>
+      </article>
+      <article class="layer l-proof">
+        <div class="name"><span class="chip">Are they safe</span><h3>Proof</h3><p class="q">Practice runs before launch, a record of every step, insurance if something breaks.</p></div>
+        <div><h4>Why it matters</h4><ul><li>Standard policies exclude AI since January 2026</li><li>JPMorgan blocks outside agents until they prove themselves</li></ul></div>
+        <div><h4>Who is there</h4><ul><li class="taken">Tracing tools, mostly acquired</li><li>Open: rehearsal and insurance (Arga Labs, AIUC)</li></ul></div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="f-h">
+    <span class="eyebrow">What the research found</span>
+    <h2 id="f-h">Four facts that reshaped the thesis</h2>
+    <div class="finds">
+      <div class="find"><span class="num">$97M</span><p>Raised by Pluto ($42M) and Reco ($55M) this fall, just to find agents running where security can't see them.</p><span class="src">TechCrunch, Sep 29 and Oct 13</span></div>
+      <div class="find"><span class="num">51,000</span><p>Workers sharing the same agents on Dust. OpenAI made team sharing a product in April. A shared agent is the new asset.</p><span class="src">AgentMarketCap, Aug 8; The New Stack, Apr 23</span></div>
+      <div class="find"><span class="num">3</span><p>Companies that shipped kill switches between August and October: Straiker, Okta, Salesforce. Stopping agents is now a feature.</p><span class="src">RuntimeWire, SiliconANGLE, VentureBeat</span></div>
+      <div class="find surprise"><span class="eyebrow" style="color:var(--rules)">Most surprising</span><p><b>The gap is manners, not brakes.</b> In OpenAI's July test the swarm built its own channel to team up on tasks it couldn't solve. No rule said how agents may coordinate, and a faster off button would not have fixed that.</p><span class="src">Cloud Security Alliance, Sep 2</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="m-h">
+    <span class="eyebrow">Submission 1</span>
+    <h2 id="m-h">MUST, final answers</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Element</th><th>Answer</th><th>Changed from prototype</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Markets</td><td>Agents become shared company assets. One proven agent copied across 50 teams beats 50 private ones.</td><td>From "whole jobs become products"</td></tr>
+        <tr><td class="k">Users</td><td>Employees build agents on laptops; security teams want them moved somewhere safe and managed.</td><td>From five problems to one clear behavior</td></tr>
+        <tr><td class="k">Science &amp; Tech</td><td>Agents now talk to each other and nobody steers it. Off buttons exist; house rules do not.</td><td>Product is steering, not stopping</td></tr>
+        <tr><td class="k">Talent</td><td>Founders who ran agents inside a big company, come from security or infra, and set a standard others adopt.</td><td>Now filtered for enterprise experience</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="c-h">
+    <span class="eyebrow">Submission 3</span>
+    <h2 id="c-h">Seven companies, one to carry forward</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Layer</th><th>Company</th><th>Stage</th><th>Why it fits</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td><span class="tag l-home">Hosting</span></td><td class="k">Credal · NYC · carry forward</td><td>Seed, Spark; YC</td><td>Runs agents with each employee's existing access rights, plus a registry, approvals and audit logs.</td></tr>
+        <tr><td><span class="tag l-home">Hosting</span></td><td class="k">Dust · Paris</td><td>$40M Series B</td><td>Shared workspaces where teams build and reuse the same agents.</td></tr>
+        <tr><td><span class="tag l-home">Hosting</span></td><td class="k">Pluto Security</td><td>$42M seed + A</td><td>Finds agents on laptops and can pause one mid task.</td></tr>
+        <tr><td><span class="tag l-rules">Rules</span></td><td class="k">Trace · London · runner up</td><td>$3M seed, YC</td><td>Maps how company processes run so agents fit the right workflow.</td></tr>
+        <tr><td><span class="tag l-rules">Rules</span></td><td class="k">Onyx Security</td><td>$113M Series B</td><td>A supervising agent that can block, ask approval or steer others.</td></tr>
+        <tr><td><span class="tag l-proof">Proof</span></td><td class="k">Arga Labs</td><td>$10M seed</td><td>Copies of company software where agents practice safely.</td></tr>
+        <tr><td><span class="tag l-proof">Proof</span></td><td class="k">AIUC</td><td>$40M Series A</td><td>Audits agents and insures the ones that pass.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="lede"><b style="color:var(--ink)">Why Credal:</b> the earliest company on the list that already combines hosting with house rules, based in NYC, founded by ex Palantir engineers. To confirm on the call: current funding, and whether it can steer agent to agent work.</p>
+  </section>
+
+  <section aria-labelledby="r-h">
+    <span class="eyebrow">Submission 2, the three lines</span>
+    <h2 id="r-h">What could prove me wrong</h2>
+    <div class="risks">
+      <div class="risk"><h3>Anti thesis</h3><p>This is the giants' turf. AWS, Microsoft, Google, OpenAI and Anthropic all host agents, and OpenAI already lets teams share them. Will big companies want neutral hosting, or just pick one vendor?</p></div>
+      <div class="risk"><h3>Kill signal</h3><p>Most large enterprises pick one vendor to host all their agents, that vendor ships house rules for agent to agent work, and neutral players like Dust and Credal stall before their next round.</p></div>
+      <div class="risk full"><h3>Alternatives that lost</h3><ul>
+        <li>Kill switches: now a feature</li><li>Orchestration frameworks: labs give them away</li>
+        <li>AI spend control: Stripe and Ramp moved first</li><li>Agent identity: 8+ acquisitions in a year</li>
+        <li>Governance dashboards: suites own them</li><li>Raw sandbox compute: sells to labs, not enterprises</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <footer class="sources">
+    <b>Sources</b>, as of Oct 27, 2026
+    <ul>
+      <li><a href="https://techcrunch.com/2026/10/13/pluto-security-raises-42m-as-ai-gives-enterprise-security-teams-a-new-headache/" target="_blank" rel="noopener">Pluto Security raises $42M, TechCrunch</a></li>
+      <li><a href="https://techcrunch.com/2026/09/29/reco-raises-55m-as-ai-agent-security-startups-crowd-the-market/" target="_blank" rel="noopener">Reco raises $55M, TechCrunch</a></li>
+      <li><a href="https://thenewstack.io/openai-shared-workspace-agents/" target="_blank" rel="noopener">OpenAI Workspace Agents, The New Stack</a></li>
+      <li><a href="https://agentmarketcap.ai/blog/2026/08/08/dust-40m-series-b-multiplayer-ai" target="_blank" rel="noopener">Dust Series B, AgentMarketCap</a></li>
+      <li><a href="https://www.bighatgroup.com/blog/state-of-openclaw-2026-enterprise-self-hosted-ai-agent/" target="_blank" rel="noopener">State of OpenClaw 2026, Big Hat Group</a></li>
+      <li><a href="https://labs.cloudsecurityalliance.org/research/csa-research-note-hugging-face-rogue-agent-swarm-20260902-cs/" target="_blank" rel="noopener">Hugging Face swarm, Cloud Security Alliance</a></li>
+      <li><a href="https://venturebeat.com/orchestration/salesforce-details-cost-controls-and-kill-switch" target="_blank" rel="noopener">Salesforce kill switch, VentureBeat</a></li>
+      <li><a href="https://runtimewire.com/article/straiker-agentic-kill-switch-ai-agent-security" target="_blank" rel="noopener">Straiker kill switch, RuntimeWire</a></li>
+      <li><a href="https://siliconangle.com/2026/09/22/okta-adds-ai-agent-runtime-gateway-forms-blueprint-alliance-with-aws-and-crowdstrike/embed/" target="_blank" rel="noopener">Okta kill switch, SiliconANGLE</a></li>
+      <li><a href="https://erp.today/celonis-enterprise-ai-context-layer-ikigai-labs/" target="_blank" rel="noopener">Celonis Context Model, ERP Today</a></li>
+      <li><a href="https://redmondmag.com/articles/2026/10/19/microsoft-expands-project-perception-to-address-security-risks-from-ai-agents.aspx" target="_blank" rel="noopener">Microsoft Guardian Agents, Redmond</a></li>
+      <li><a href="https://fortune.com/2026/10/15/jamie-dimon-ai-agents-meta-muse-jpmorgan/" target="_blank" rel="noopener">JPMorgan blocks outside agents, Fortune</a></li>
+      <li><a href="https://yespress.io/credal-ai.md" target="_blank" rel="noopener">Credal profile, Yespress</a></li>
+      <li><a href="https://talkshi.com/blog/trace-3m-seed-agent-orchestration" target="_blank" rel="noopener">Trace seed, Talkshi</a></li>
+      <li><a href="https://techcrunch.com/2026/08/26/arga-is-building-a-better-way-to-train-enterprise-ai-agents" target="_blank" rel="noopener">Arga Labs, TechCrunch</a></li>
+      <li><a href="https://fintech.global/2026/09/17/aiuc-raises-40m-to-police-risk-in-frontier-ai-agents/" target="_blank" rel="noopener">AIUC Series A, FinTech Global</a></li>
+    </ul>
+  </footer>
+</main>
+
+</body></html>

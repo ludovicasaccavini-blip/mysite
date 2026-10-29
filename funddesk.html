@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FundDesk Give and Learn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F3; --paper:#FFFFFF; --ink:#1C2B24; --muted:#4C5A52; --soft:#55635B;
+  --line:#D5DDD5; --hair:#E3E8E2;
+  --green:#2F6B52; --green-d:#1F4D3A; --green-l:#E6EEE7; --focus:#9CC3AF;
+  --navy:#24384F; --sky:#E4EEF6; --sky-d:#2F5F82;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;font-size:17px;line-height:1.55}
+a{color:var(--green)} a:hover{color:var(--green-d)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(38px,5.2vw,60px);line-height:1.05;font-weight:600;letter-spacing:-.025em}
+h2{font-size:clamp(28px,3.2vw,38px);line-height:1.12;font-weight:600;letter-spacing:-.02em}
+h3{font-size:20px;line-height:1.3;font-weight:600}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.lede{font-size:clamp(18px,1.9vw,20px);color:var(--muted);max-width:60ch}
+.small{font-size:14px;color:var(--soft)}
+.sec{padding:72px 0}
+.sec.white{background:var(--paper);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.sec-head{display:flex;flex-direction:column;gap:12px;max-width:680px;margin-bottom:36px}
+.kicker{font-size:16px;font-weight:600;color:var(--green)}
+
+.btn{min-height:52px;padding:13px 22px;border-radius:12px;font:inherit;font-size:17px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.btn:hover{border-color:var(--green);color:var(--green-d)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-d);color:#fff}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.navy:hover{background:#18283a;color:#fff}
+
+/* header */
+header{background:var(--bg);border-bottom:1px solid var(--hair);position:sticky;top:0;z-index:5}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand b{font-size:20px;font-weight:600}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{color:var(--ink);text-decoration:none;font-weight:500;padding:12px 12px;border-radius:10px}
+nav a:hover{background:var(--green-l);color:var(--green-d)}
+.shared{font-size:14px;color:var(--green-d);background:var(--green-l);padding:6px 12px;border-radius:999px;white-space:nowrap}
+
+/* hero */
+.hero{padding:56px 0 64px}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.hero-copy{display:flex;flex-direction:column;gap:22px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+
+/* the receipt: the one bold element */
+.receipt{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:28px 28px 22px;position:relative;box-shadow:0 1px 0 var(--hair),0 18px 40px -24px rgba(28,43,36,.35);font-variant-numeric:tabular-nums}
+.receipt::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;background:
+  linear-gradient(-45deg,transparent 7px,var(--paper) 7px) 0 0/14px 10px repeat-x,
+  linear-gradient(45deg,transparent 7px,var(--paper) 7px) 0 0/14px 10px repeat-x}
+.r-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:14px;border-bottom:1px dashed var(--line)}
+.r-top p{font-size:14px;color:var(--soft)}
+.r-top strong{display:block;font-size:17px;color:var(--ink)}
+.r-line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:16px}
+.r-line span:first-child{color:var(--muted)}
+.r-split{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:6px 0 4px}
+.r-split i{display:block}
+.r-total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);margin-top:8px;padding-top:12px}
+.r-total span{font-weight:600}
+.r-total b{font-size:34px;letter-spacing:-.02em;color:var(--green-d)}
+.r-foot{margin-top:12px;font-size:13px;color:var(--soft)}
+.stamp{white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--green-d);border:1.5px solid var(--green);border-radius:6px;padding:4px 8px;transform:rotate(-3deg)}
+
+/* proof strip */
+.proof{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);background:var(--paper)}
+.proof .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.proof div{padding:22px 20px;display:flex;gap:12px;align-items:flex-start;border-left:1px solid var(--hair)}
+.proof div:first-child{border-left:none;padding-left:0}
+.proof svg{flex:none;color:var(--green);margin-top:2px}
+.proof b{display:block;font-size:16px}
+.proof span{font-size:14px;color:var(--soft)}
+
+/* how */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--paper)}
+.flow li{list-style:none;padding:24px;border-left:1px solid var(--hair);display:flex;flex-direction:column;gap:6px;position:relative}
+.flow li:first-child{border-left:none}
+.flow .n{font-weight:700;color:var(--green);font-size:15px}
+.flow p{color:var(--muted);font-size:15px}
+.flow{margin:0;padding:0}
+.loop{display:flex;align-items:center;gap:12px;margin-top:14px;color:var(--green-d);font-weight:500}
+.compare{margin-top:36px;display:grid;gap:14px;max-width:760px}
+.crow{display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center}
+.crow b{font-size:15px}
+.cbar{display:flex;height:46px;border-radius:10px;overflow:hidden;font-size:15px;font-weight:600}
+.cbar div{display:flex;align-items:center;padding:0 14px;white-space:nowrap}
+.irs{background:#DDE3DC}
+.kids{background:var(--green);color:#fff}
+
+/* fit */
+.fit{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:center;position:relative}
+.fit::before{content:"";position:absolute;left:8%;right:8%;top:50%;border-top:2px dashed var(--line);z-index:0}
+.fit-col,.fit-hub{position:relative;z-index:1;border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:12px}
+.fit-col{background:var(--bg);border:1px solid var(--line)}
+.fit-hub{background:var(--green);color:#fff;margin:0 -8px;box-shadow:0 18px 40px -24px rgba(28,43,36,.5);padding:32px 28px}
+.fit ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px}
+.fit-col ul{color:var(--muted)}
+.fit-hub ul{color:#E6EEE7}
+#give{background:var(--bg);border-top:none}
+/* give tool */
+.give{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:28px}
+.amounts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 6px}
+.amt input{position:absolute;opacity:0;width:1px;height:1px}
+.amt label{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:68px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-weight:600;font-size:19px;font-variant-numeric:tabular-nums;background:#fff;text-align:center;padding:6px}
+.amt label small{font-weight:500;font-size:12px;color:var(--soft)}
+.amt input:checked + label{border:2px solid var(--green);background:var(--green-l);color:var(--green-d)}
+.amt input:checked + label small{color:var(--green-d)}
+.amt input:focus-visible + label{outline:3px solid var(--focus);outline-offset:2px}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.field label{font-weight:500}
+input[type=number],input[type=email],select{min-height:52px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff;color:var(--ink);width:100%}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:15px;color:var(--muted)}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--green)}
+.summary{display:grid;gap:4px;font-variant-numeric:tabular-nums}
+.summary .r-line{border-bottom:1px solid var(--hair)}
+.after{margin-top:22px;display:grid;gap:14px}
+.after div{display:flex;gap:12px;align-items:flex-start}
+.after svg{flex:none;color:var(--sky-d);margin-top:3px}
+.after p{font-size:15px;color:var(--muted)}
+.after b{color:var(--ink);display:block;font-size:16px}
+.thanks{padding:18px;border-radius:12px;background:var(--green-l);color:var(--green-d);font-weight:600}
+
+/* parent hub */
+.hub{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start}
+.lessons{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.lessons button{all:unset;box-sizing:border-box;width:100%;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;cursor:pointer;min-height:48px;font-weight:500}
+.lessons button:hover{background:var(--green-l)}
+.lessons button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.lessons button[aria-current="true"]{background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);font-weight:600}
+.dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:600;flex:none;background:#fff}
+.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+.lesson{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:32px;min-height:360px;display:flex;flex-direction:column;gap:16px}
+.lesson[hidden]{display:none}
+.lesson p{max-width:62ch;color:var(--muted)}
+.lesson ul{margin:0;padding-left:20px;color:var(--muted);display:grid;gap:6px}
+.lesson .eg{background:var(--sky);color:var(--navy);border-radius:12px;padding:16px 18px;font-size:16px}
+.lesson .nav{margin-top:auto;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:8px}
+.progress{height:6px;background:var(--hair);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.progress i{display:block;height:100%;background:var(--green);width:20%;transition:width .3s}
+.myths{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.myths div{border:1px solid var(--hair);border-radius:12px;padding:14px 16px;font-size:15px}
+.myths b{display:block;color:var(--ink);margin-bottom:4px}
+
+/* checker */
+.checker{margin-top:28px}
+fieldset{border:none;padding:0;margin:0 0 22px}
+legend{font-weight:600;font-size:18px;margin-bottom:10px;padding:0}
+.opts{display:flex;flex-wrap:wrap;gap:10px}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt label{display:inline-flex;align-items:center;min-height:48px;padding:12px 18px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:#fff}
+.opt input:checked + label{background:var(--green);border-color:var(--green);color:#fff}
+.opt input:focus-visible + label{outline:3px solid var(--focus);outline-offset:2px}
+.result{margin-top:18px;padding:22px;border-radius:14px;display:flex;flex-direction:column;gap:10px}
+.result.good{background:var(--green-l);color:var(--green-d)}
+.result.maybe{background:var(--sky);color:var(--navy)}
+.result.no{background:#F1EEE7;color:#4F4232}
+.inline{display:flex;flex-wrap:wrap;gap:10px}
+.inline input{flex:1 1 240px;width:auto}
+
+/* open books */
+.books{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.alloc{display:grid;gap:14px}
+.abar{display:flex;height:56px;border-radius:12px;overflow:hidden;font-weight:600;font-size:15px}
+.abar div{display:flex;align-items:center;padding:0 14px;white-space:nowrap}
+.legend{display:grid;gap:10px;font-size:15px}
+.legend div{display:flex;gap:10px;align-items:baseline}
+.legend i{width:12px;height:12px;border-radius:3px;flex:none;transform:translateY(1px)}
+.docs{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden}
+.docs li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-top:1px solid var(--hair)}
+.docs li:first-child{border-top:none}
+.docs b{display:block;font-size:16px}
+.docs span{font-size:14px;color:var(--soft)}
+.docs .tag{font-size:13px;font-weight:600;color:var(--soft);background:var(--bg);border-radius:999px;padding:6px 10px;white-space:nowrap}
+.docs a{font-weight:600;white-space:nowrap;padding:10px 4px}
+
+/* faq */
+details{border-bottom:1px solid var(--hair);padding:18px 0}
+summary{cursor:pointer;font-weight:600;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--green);font-size:22px;line-height:1}
+details[open] summary::after{content:"\2212"}
+details p{margin-top:10px;color:var(--muted);max-width:68ch}
+
+footer{padding:36px 0;font-size:14px;color:var(--soft)}
+footer .wrap{display:grid;gap:14px}
+footer p{max-width:90ch}
+
+@media (max-width:920px){
+  .hero .wrap,.give,.hub,.books,.fit{grid-template-columns:1fr}
+  .fit{gap:14px}.fit::before{left:50%;right:auto;top:6%;bottom:6%;border-top:none;border-left:2px dashed var(--line)}.fit-hub{margin:0}
+  .proof .wrap{grid-template-columns:1fr 1fr}
+  .proof div{border-left:none;padding-left:0;border-top:1px solid var(--hair)}
+  .flow{grid-template-columns:1fr 1fr}
+  .flow li:nth-child(3){border-left:none}
+  .flow li:nth-child(n+3){border-top:1px solid var(--hair)}
+  nav{display:none}
+  .lessons{grid-template-columns:repeat(5,1fr)}
+  .lessons button{justify-content:center;padding:10px}
+  .lessons .lbl{display:none}
+}
+@media (max-width:560px){
+  .proof .wrap,.flow,.myths{grid-template-columns:1fr}
+  .flow li{border-left:none!important;border-top:1px solid var(--hair)}
+  .flow li:first-child{border-top:none}
+  .amounts{grid-template-columns:1fr 1fr}
+  .crow{grid-template-columns:1fr}
+  .panel,.lesson{padding:22px}
+  .shared{display:none}
+}
+</style>
+</head>
+<body>
+<div style="background:#1C2B24;color:#fff;font-size:14px;padding:10px 24px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><b>Prototype.</b> This is a demo of FundDesk. Sign up forms are not live yet.</span><a href="index.html#things" style="color:#fff">&larr; Ludovica Saccavini</a></div>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="FundDesk home">
+      <svg width="34" height="34" viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="21" r="12" fill="#2F6B52"/>
+        <text x="18" y="26.5" text-anchor="middle" font-family="Figtree, system-ui, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF">$</text>
+        <polygon points="18,2 31,8 18,14 5,8" fill="#1C2B24"/>
+        <path d="M27 9.5 V15.5" stroke="#1C2B24" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="27" cy="16.5" r="1.6" fill="#1C2B24"/>
+      </svg>
+      <b>FundDesk</b>
+    </a>
+    <nav aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#fit">About</a>
+      <a href="#give">Give</a>
+      <a href="#families">For families</a>
+      <a href="#books">Open books</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <h1>Send $1,700 of your federal taxes to kids in your community.</h1>
+      <p class="lede">Starting in 2027, a federal tax credit lets you give to a scholarship nonprofit and get the full amount back on your taxes. Families use the scholarships for tutoring, after school programs and special ed services.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#give">Join the network</a>
+        <a class="btn" href="#families">I'm a parent</a>
+      </div>
+      <p class="small">Gifts go to a state listed scholarship nonprofit. FundDesk connects your schools to it and runs its back office.</p>
+    </div>
+
+    <figure class="receipt" aria-label="Example gift receipt for a $1,700 gift" style="margin:0">
+      <div class="r-top">
+        <div><p>Example receipt</p><strong>Scholarship Granting Organization</strong><p>501(c)(3) nonprofit</p></div>
+        <span class="stamp">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Credit eligible
+        </span>
+      </div>
+      <div class="r-line"><span>Your gift</span><span>$1,700.00</span></div>
+      <div class="r-split" aria-hidden="true"><i style="flex:90;background:var(--green)"></i><i style="flex:10;background:#C9D3CA"></i></div>
+      <div class="r-line" style="padding-top:4px"><span>To scholarships (at least 90%)</span><span>$1,530.00</span></div>
+      <div class="r-line" style="padding-top:0"><span>Running the program (at most 10%)</span><span>$170.00</span></div>
+      <div class="r-line"><span>Federal tax credit</span><span>&minus;$1,700.00</span></div>
+      <div class="r-total"><span>Your real cost</span><b>$0</b></div>
+      <p class="r-foot">Assumes you owe at least $1,700 in federal income tax. Claimed on your 2027 return.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- PROOF STRIP -->
+<div class="proof">
+  <div class="wrap">
+    <div>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+      <p><b>State listed SGOs only</b><span>Every partner is on its state's official list</span></p>
+    </div>
+    <div>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>
+      <p><b>501(c)(3) nonprofits</b><span>Look any partner up on the IRS site</span></p>
+    </div>
+    <div>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      <p><b>90% to scholarships</b><span>Required by federal law</span></p>
+    </div>
+    <div>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+      <p><b>Dollar for dollar</b><span>A federal tax credit, not a deduction</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">How the credit works</p>
+      <h2>Money you already owe the IRS, sent somewhere you can see.</h2>
+    </div>
+    <ol class="flow">
+      <li><span class="n">Step 1</span><h3>You give</h3><p>Up to $1,700 each, or $3,400 for a married couple filing jointly.</p></li>
+      <li><span class="n">Step 2</span><h3>The SGO holds it</h3><p>A state listed scholarship nonprofit pools gifts from the community.</p></li>
+      <li><span class="n">Step 3</span><h3>Families apply</h3><p>Eligible K to 12 kids get scholarships, public school students included.</p></li>
+      <li><span class="n">Step 4</span><h3>Providers get paid</h3><p>Tutors and programs are paid directly. No cash changes hands.</p></li>
+    </ol>
+    <p class="loop">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg>
+      Then you subtract the full gift from your federal tax bill. A credit, not a deduction.
+    </p>
+
+    <div class="compare" aria-label="Example with a $5,000 federal tax bill">
+      <p style="font-weight:600">If you owe $5,000 in federal tax</p>
+      <div class="crow"><b>Without giving</b><div class="cbar"><div class="irs" style="flex:1">$5,000 to the IRS</div></div></div>
+      <div class="crow"><b>With giving</b><div class="cbar"><div class="irs" style="flex:3300">$3,300 to the IRS</div><div class="kids" style="flex:1700">$1,700 to kids</div></div></div>
+      <p class="small">Same $5,000 out of your pocket either way.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHERE FUNDDESK FITS -->
+<section class="sec white" id="fit">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Where FundDesk fits</p>
+      <h2>The link between your schools and the right SGO.</h2>
+      <p class="lede">Schools know their families. SGOs hold the money and award scholarships. FundDesk connects the two and handles the paperwork in between.</p>
+    </div>
+    <div class="fit">
+      <div class="fit-col">
+        <h3>Schools and districts</h3>
+        <ul><li>Share this page with families</li><li>Point parents to the right SGO</li><li>Pay nothing</li></ul>
+      </div>
+      <div class="fit-hub" aria-label="FundDesk sits between schools and SGOs">
+        <svg width="34" height="34" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="21" r="12" fill="#FFFFFF"/><text x="18" y="26.5" text-anchor="middle" font-family="Figtree, system-ui, sans-serif" font-size="14" font-weight="700" fill="#2F6B52">$</text><polygon points="18,2 31,8 18,14 5,8" fill="#FFFFFF"/></svg>
+        <h3>FundDesk</h3>
+        <ul><li>Matches schools with the right SGO</li><li>Checks eligibility and pays providers</li><li>Runs receipts, reporting and compliance</li></ul>
+      </div>
+      <div class="fit-col">
+        <h3>SGOs</h3>
+        <ul><li>Receive donor gifts</li><li>Award scholarships to families</li><li>Stay on their state's list</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GIVE -->
+<section class="sec white" id="give">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">For donors</p>
+      <h2>Join the donor network.</h2>
+      <p class="lede">No commitment today. Join and we keep you posted as SGOs open near you, then send your secure giving link when gifts count from January 1, 2027.</p>
+    </div>
+
+    <div class="give">
+      <form class="panel" id="pledge" novalidate>
+        <fieldset style="margin:0">
+          <legend>How much might you give? <span class="small" style="font-weight:400">Just an estimate</span></legend>
+          <div class="amounts">
+            <div class="amt"><input type="radio" name="amt" id="m1" value="500"><label for="m1">$500</label></div>
+            <div class="amt"><input type="radio" name="amt" id="m2" value="1000"><label for="m2">$1,000</label></div>
+            <div class="amt"><input type="radio" name="amt" id="m3" value="1700" checked><label for="m3">$1,700<small>Single max</small></label></div>
+            <div class="amt"><input type="radio" name="amt" id="m4" value="3400"><label for="m4">$3,400<small>Couple max</small></label></div>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label for="owe">Federal income tax you expect to owe for 2027</label>
+          <input type="number" id="owe" min="0" step="100" value="5000" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="fund">Where it goes</label>
+          <select id="fund">
+            <option>Families in my community</option>
+            <option>Wherever need is greatest in my state</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pemail">Email for your giving link</label>
+          <input type="email" id="pemail" placeholder="you@email.com" autocomplete="email" required>
+        </div>
+        <label class="check"><input type="checkbox" id="ack" required> I understand I can't choose a specific child, and that the SGO decides who receives scholarships.</label>
+        <div style="margin-top:22px"><button class="btn navy" type="submit" id="pbtn" style="width:100%">Join the network</button></div>
+        <p class="small" id="perr" role="alert" style="margin-top:10px"></p>
+      </form>
+
+      <div>
+        <div class="panel summary" aria-live="polite">
+          <h3 style="margin-bottom:8px">Your gift, worked out</h3>
+          <div class="r-line"><span>You give</span><strong id="s-give">$1,700</strong></div>
+          <div class="r-line"><span>To scholarships (at least)</span><strong id="s-sch">$1,530</strong></div>
+          <div class="r-line"><span>Credit on your 2027 taxes</span><strong id="s-credit">$1,700</strong></div>
+          <div class="r-line" id="s-carry-row" hidden><span>Carried to later years</span><strong id="s-carry">$0</strong></div>
+          <div class="r-total"><span>Real cost to you</span><b id="s-net">$0</b></div>
+          <p class="small" id="s-note" style="margin-top:10px"></p>
+        </div>
+        <div class="after">
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><p><b>Official receipt</b>From the SGO, with its EIN, ready for your tax preparer.</p></div>
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><p><b>Impact report</b>How many students your community funded and what they used it for. No child's name or data, ever.</p></div>
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg><p><b>A reminder each tax season</b>So you can give again and keep the credit going.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAMILIES -->
+<section class="sec" id="families">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">For families</p>
+      <h2>Learn the credit in five short lessons.</h2>
+      <p class="lede">About five minutes. Then check if your child can get a scholarship.</p>
+    </div>
+
+    <div class="hub">
+      <ol class="lessons" id="lessonNav" aria-label="Lessons"></ol>
+      <div>
+        <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+
+        <article class="lesson" data-title="What it is">
+          <h3>What this credit is</h3>
+          <p>A new federal law lets people redirect part of their tax bill to scholarship nonprofits called SGOs. The SGOs turn that money into scholarships for K to 12 students.</p>
+          <p>It starts January 1, 2027. Your family does not pay anything and does not need to file anything with the IRS.</p>
+          <div class="eg">Think of it like a neighbor choosing to send $1,700 of their taxes to help kids nearby, instead of to Washington.</div>
+        </article>
+
+        <article class="lesson" data-title="Who qualifies" hidden>
+          <h3>Who can get a scholarship</h3>
+          <ul>
+            <li>Your child is eligible to attend a public school, kindergarten through 12th grade.</li>
+            <li>Your household income is no more than 3 times your area's median income, adjusted for family size.</li>
+            <li>Your state has opted in to the program.</li>
+          </ul>
+          <div class="eg">Treasury estimates about 95% of American children live in households under the income limit.</div>
+          <p>Meeting the rules does not guarantee a scholarship. Awards depend on how much the SGO raises.</p>
+        </article>
+
+        <article class="lesson" data-title="What it pays for" hidden>
+          <h3>What a scholarship can pay for</h3>
+          <ul>
+            <li>Academic tutoring, including for kids who stay in their public school</li>
+            <li>Qualifying after school and extended day programs</li>
+            <li>Special education services and therapies</li>
+            <li>Books, supplies and fees</li>
+          </ul>
+          <div class="eg">Example: a 4th grader at her local public school gets weekly reading tutoring. The SGO pays the tutor directly.</div>
+        </article>
+
+        <article class="lesson" data-title="How to apply" hidden>
+          <h3>How you apply</h3>
+          <p>You apply to the SGO, not to your school or the IRS. Expect a short form with your child's grade, your household size and proof of income.</p>
+          <p>If you already get SNAP, WIC, Medicaid or free school meals, a letter from that program is usually enough proof.</p>
+          <div class="eg">Applications open in 2027, once your state names its SGOs. Leave your email below and we tell you the day they open near you.</div>
+        </article>
+
+        <article class="lesson" data-title="Myths and privacy" hidden>
+          <h3>Common worries, answered</h3>
+          <div class="myths">
+            <div><b>"It's only for private schools."</b>No. Public school kids can use it for tutoring and services.</div>
+            <div><b>"Donors will know my child."</b>No. Donors can't pick or see individual students.</div>
+            <div><b>"It costs us something."</b>No. Applying is free, and so is the scholarship.</div>
+            <div><b>"We have to pay it back."</b>No. It is a scholarship, not a loan.</div>
+          </div>
+          <p>Your information is used only to check eligibility and pay providers. It is never sold or shared with donors.</p>
+        </article>
+
+        <div class="lesson-nav nav" style="display:flex;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap">
+          <button class="btn" type="button" id="prev">Previous</button>
+          <button class="btn primary" type="button" id="next">Next lesson</button>
+        </div>
+
+        <div class="panel checker" id="check">
+          <h3 style="margin-bottom:6px">Check if your child qualifies</h3>
+          <p class="small" style="margin-bottom:22px">Three questions. Nothing is saved unless you leave your email.</p>
+          <form id="checker" novalidate>
+            <fieldset>
+              <legend>Is your child in kindergarten through 12th grade?</legend>
+              <div class="opts">
+                <div class="opt"><input type="radio" name="grade" id="g1" value="yes"><label for="g1">Yes</label></div>
+                <div class="opt"><input type="radio" name="grade" id="g2" value="soon"><label for="g2">Starting next school year</label></div>
+                <div class="opt"><input type="radio" name="grade" id="g3" value="no"><label for="g3">No</label></div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Does your family get SNAP, WIC, Medicaid, or free or reduced price school meals?</legend>
+              <div class="opts">
+                <div class="opt"><input type="radio" name="aid" id="a1" value="yes"><label for="a1">Yes</label></div>
+                <div class="opt"><input type="radio" name="aid" id="a2" value="no"><label for="a2">No</label></div>
+                <div class="opt"><input type="radio" name="aid" id="a3" value="unsure"><label for="a3">Not sure</label></div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>What would help most?</legend>
+              <div class="opts">
+                <div class="opt"><input type="radio" name="need" id="n1" value="tutoring"><label for="n1">Tutoring</label></div>
+                <div class="opt"><input type="radio" name="need" id="n2" value="after school programs"><label for="n2">After school programs</label></div>
+                <div class="opt"><input type="radio" name="need" id="n3" value="special ed services"><label for="n3">Special ed services</label></div>
+                <div class="opt"><input type="radio" name="need" id="n4" value="learning support"><label for="n4">Something else</label></div>
+              </div>
+            </fieldset>
+            <button class="btn primary" type="submit">See my result</button>
+          </form>
+          <div id="result" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPEN BOOKS -->
+<section class="sec white" id="books">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Open books</p>
+      <h2>Where every dollar goes, and the documents to prove it.</h2>
+    </div>
+    <div class="books">
+      <div class="alloc">
+        <div class="abar" role="img" aria-label="At least 90 percent to scholarships, at most 10 percent to running the program">
+          <div style="flex:90;background:var(--green);color:#fff">90%+ scholarships</div>
+          <div style="flex:10;background:#C9D3CA"></div>
+        </div>
+        <div class="legend">
+          <div><i style="background:var(--green)"></i><p><b>At least 90% to scholarships.</b> The law requires it. Paid straight to tutors, programs and service providers.</p></div>
+          <div><i style="background:#C9D3CA"></i><p><b>At most 10% to running the program.</b> Eligibility checks, payments, audits and reporting, handled by FundDesk for the SGO. FundDesk's fee comes from this share.</p></div>
+        </div>
+        <p class="small">We publish actual figures once the first year closes.</p>
+      </div>
+      <ul class="docs">
+        <li><p><b>IRS determination letter</b><span>Proof of 501(c)(3) status</span></p><a href="https://apps.irs.gov/app/eos/" target="_blank" rel="noopener">Look up</a></li>
+        <li><p><b>Form 990</b><span>Annual return filed with the IRS</span></p><a href="https://apps.irs.gov/app/eos/" target="_blank" rel="noopener">Look up</a></li>
+        <li><p><b>State SGO listing</b><span>Each state publishes its approved SGOs</span></p><span class="tag">From Feb 2027</span></li>
+        <li><p><b>Independent audit</b><span>Yearly, sent to every donor</span></p><span class="tag">After year one</span></li>
+        <li><p><b>Board and governance</b><span>Board members, conflict of interest policy</span></p><span class="tag">On request</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-head"><h2>Questions</h2></div>
+    <details><summary>Is this a deduction or a credit?</summary><p>A credit. A deduction lowers the income you're taxed on. A credit comes straight off the tax you owe, dollar for dollar.</p></details>
+    <details><summary>What if I owe less than my gift?</summary><p>The credit can't create a refund. Whatever you can't use carries forward for up to five years.</p></details>
+    <details><summary>Do I need to itemize?</summary><p>No. You claim it whether you itemize or take the standard deduction.</p></details>
+    <details><summary>My state hasn't opted in. Can I still give?</summary><p>Yes. You can give to an SGO in any participating state and still claim the credit.</p></details>
+    <details><summary>Is the rule final?</summary><p>Treasury published proposed rules in fall 2026. Details may change before launch. We update this page when they do.</p></details>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Gifts are made to a 501(c)(3) scholarship granting organization on its state's official list. Your receipt names the SGO and its EIN. FundDesk connects schools and districts with SGOs and provides software and back office services to those SGOs. FundDesk does not hold donor funds or award scholarships.</p>
+    <p>This page is general information, not tax or legal advice. Talk to a tax professional about your situation. Facts based on the U.S. Treasury and Department of Education FAQ and proposed rules, fall 2026.</p>
+    <p>Built at Cornell Tech, New York. © 2026 FundDesk</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var fmt = function(v){ return '$' + Math.round(v).toLocaleString('en-US'); };
+
+  /* donor calculator */
+  var pledge = document.getElementById('pledge'), owe = document.getElementById('owe');
+  function calc(){
+    var gift = +(pledge.querySelector('input[name=amt]:checked') || {value:1700}).value;
+    var cap = gift > 1700 ? 3400 : 1700;
+    var tax = Math.max(0, +owe.value || 0);
+    var credit = Math.min(gift, cap, tax), carry = Math.min(gift, cap) - credit;
+    document.getElementById('s-give').textContent = fmt(gift);
+    document.getElementById('s-sch').textContent = fmt(gift * 0.9);
+    document.getElementById('s-credit').textContent = fmt(credit);
+    document.getElementById('s-carry-row').hidden = !carry;
+    document.getElementById('s-carry').textContent = fmt(carry);
+    document.getElementById('s-net').textContent = carry ? fmt(carry) + ' for now' : '$0';
+    document.getElementById('s-note').textContent = gift === 3400
+      ? 'The $3,400 limit is for married couples filing jointly ($1,700 each).'
+      : (carry ? 'You owe less than your gift, so the rest of the credit rolls forward to later years.' : 'Full gift comes back as a credit on your 2027 return.');
+  }
+  pledge.addEventListener('change', calc); owe.addEventListener('input', calc); calc();
+  pledge.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = document.getElementById('pemail'), ack = document.getElementById('ack'), err = document.getElementById('perr');
+    if (!email.value || !email.checkValidity()){ err.textContent = 'Enter a valid email so we can send your giving link.'; email.focus(); return; }
+    if (!ack.checked){ err.textContent = 'Check the box to confirm you understand how scholarships are awarded.'; ack.focus(); return; }
+    var gift = document.getElementById('s-give').textContent;
+    pledge.innerHTML = '<div class="thanks" role="status">You joined the network. We will email you as SGOs open near you, and send your secure giving link when gifts open on January 1, 2027.</div>';
+  });
+
+  /* lessons */
+  var lessons = Array.prototype.slice.call(document.querySelectorAll('.lesson'));
+  var navList = document.getElementById('lessonNav'), cur = 0, seen = {0:true};
+  lessons.forEach(function(l, i){
+    var li = document.createElement('li');
+    li.innerHTML = '<button type="button" data-i="' + i + '"><span class="dot">' + (i+1) + '</span><span class="lbl">' + l.dataset.title + '</span></button>';
+    navList.appendChild(li);
+  });
+  var navBtns = navList.querySelectorAll('button');
+  function show(i){
+    cur = i; seen[i] = true;
+    lessons.forEach(function(l, j){ l.hidden = j !== i; });
+    navBtns.forEach(function(b, j){
+      b.setAttribute('aria-current', j === i ? 'true' : 'false');
+      b.parentNode.classList.toggle('done', !!seen[j] && j !== i);
+      b.setAttribute('aria-label', 'Lesson ' + (j+1) + ': ' + lessons[j].dataset.title);
+    });
+    document.getElementById('prog').style.width = ((i+1) / lessons.length * 100) + '%';
+    document.getElementById('prev').disabled = i === 0;
+    document.getElementById('next').textContent = i === lessons.length - 1 ? 'Check eligibility' : 'Next lesson';
+  }
+  navBtns.forEach(function(b){ b.addEventListener('click', function(){ show(+b.dataset.i); }); });
+  document.getElementById('prev').addEventListener('click', function(){ if (cur > 0) show(cur - 1); });
+  document.getElementById('next').addEventListener('click', function(){
+    if (cur < lessons.length - 1) show(cur + 1);
+    else document.getElementById('check').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  show(0);
+
+  /* eligibility checker */
+  var form = document.getElementById('checker'), out = document.getElementById('result');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var v = function(n){ var x = form.querySelector('input[name=' + n + ']:checked'); return x && x.value; };
+    var g = v('grade'), a = v('aid'), n = v('need');
+    if (!g || !a || !n){ out.innerHTML = '<p class="small" style="margin-top:14px">Answer all three questions to see your result.</p>'; return; }
+    var cls, title, body;
+    if (g === 'no'){ cls='no'; title='Scholarships are for K to 12 students'; body='If you have a younger child, come back when they start kindergarten.'; }
+    else if (a === 'yes'){ cls='good'; title='Your child very likely qualifies'; body='Families on these programs usually meet the income rule. We will email you when applications for ' + n + ' open near you.'; }
+    else { cls='maybe'; title='Your child probably qualifies'; body='The limit is 3 times your area\'s median income, and about 95% of kids are under it. The SGO confirms with your ZIP code and household size when you apply.'; }
+    var signup = cls === 'no' ? '' :
+      '<form class="inline" onsubmit="event.preventDefault();this.outerHTML=\'<p role=status><b>Done. We will email you when applications open.</b></p>\'">' +
+      '<label for="femail" style="position:absolute;left:-9999px">Email</label>' +
+      '<input type="email" id="femail" placeholder="you@email.com" autocomplete="email" required>' +
+      '<button class="btn primary" type="submit">Tell me when it opens</button></form>';
+    out.innerHTML = '<div class="result ' + cls + '"><h3>' + title + '</h3><p>' + body + '</p>' + signup +
+      '<p class="small" style="color:inherit">Not a guarantee. The SGO makes the final check, and awards depend on funds raised.</p></div>';
+  });
+})();
+</script>
+</body>
+</html>
