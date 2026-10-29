@@ -9,38 +9,42 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
 <style>
-/* Layout: sidebar with name, tagline, nav and links on the left; one page of text on the right. One font, light, one quiet green for links. */
+/* Layout: sidebar with name, tagline, nav and links on the left; one page of text on the right. One font, light, ink blue for the few details. */
 :root{
-  --bg:#FCFCFA; --ink:#1B211E; --muted:#66706B; --rule:#E1E5E0; --accent:#0B5D3B;
+  --bg:#FCFCFA; --ink:#1A1F2B; --muted:#646B78; --rule:#E2E5EC;
+  --blue:#2343B0; --blue-soft:#E9EDF9;
   --font:"Newsreader","Iowan Old Style",Georgia,serif;
   color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:19px;line-height:1.6}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:19px;line-height:1.6;border-top:3px solid var(--blue)}
+::selection{background:var(--blue-soft);color:var(--ink)}
 .wrap{max-width:960px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:64px;
   padding-block:72px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
 aside{display:flex;flex-direction:column;gap:22px;position:sticky;top:40px;align-self:start}
 aside .name{font-weight:500;font-size:20px;color:var(--ink);text-decoration:none}
+aside .name span{color:var(--blue)}
 .tag{font-style:italic;color:var(--muted);font-size:16px;line-height:1.45;margin:0}
 nav{display:flex;flex-direction:column;gap:6px;font-size:17px}
-nav a{color:var(--muted);text-decoration:none;padding:2px 0;transition:color .15s}
-nav a:hover,nav a[aria-current="page"]{color:var(--ink)}
-nav a[aria-current="page"]::before{content:"";display:inline-block;width:10px;height:1px;background:var(--ink);vertical-align:middle;margin-right:8px}
-.connect{display:flex;flex-direction:column;gap:6px;font-size:15px}
+nav a{color:var(--muted);text-decoration:none;padding:2px 0;transition:color .15s,padding .15s}
+nav a:hover{color:var(--blue)}
+nav a[aria-current="page"]{color:var(--ink)}
+nav a[aria-current="page"]::before{content:"";display:inline-block;width:12px;height:2px;background:var(--blue);vertical-align:middle;margin-right:8px}
+.connect{display:flex;flex-direction:column;gap:6px;font-size:15px;padding-top:18px;border-top:1px solid var(--rule)}
 .connect a,.connect button{color:var(--muted);text-decoration:none;font:inherit;background:none;border:0;padding:2px 0;text-align:left;cursor:pointer;transition:color .15s}
-.connect a:hover,.connect button:hover{color:var(--accent)}
+.connect a:hover,.connect button:hover{color:var(--blue)}
 .email{font-size:14px;color:var(--muted);user-select:all;word-break:break-all}
-a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:2px}
 
 main{max-width:34rem;min-width:0}
 section{display:flex;flex-direction:column;gap:20px}
 p{margin:0;text-wrap:pretty}
-main a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1.5px;transition:color .15s}
-main a:hover{color:var(--accent)}
-h2{font-weight:500;font-size:19px;margin:12px 0 0}
+main a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--blue);text-underline-offset:3px;text-decoration-thickness:1.5px;transition:color .15s}
+main a:hover{color:var(--blue)}
+h2{font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:16px 0 0}
 
-.faves{margin:12px 0 0;border:1px solid var(--rule);border-radius:8px;padding:4px 18px;max-width:24rem}
+.faves{margin:12px 0 0;border:1px solid var(--rule);border-top:2px solid var(--blue);border-radius:2px;padding:4px 18px;max-width:24rem;background:#fff}
 .faves div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:17px}
 .faves div:last-child{border-bottom:0}
 .faves dt{color:var(--muted)}
@@ -50,8 +54,8 @@ h2{font-weight:500;font-size:19px;margin:12px 0 0}
 .list li{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
 .list .when{font-size:15px;color:var(--muted);white-space:nowrap;padding-top:3px}
 
-.thesis{border-left:2px solid var(--rule);padding-left:18px;display:flex;flex-direction:column;gap:8px}
-.thesis .q{font-style:italic}
+.thesis{border-left:2px solid var(--blue);padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.thesis .q{font-style:italic;font-size:21px;line-height:1.4}
 .thesis .more{font-size:17px}
 
 @media (max-width:720px){
@@ -60,9 +64,10 @@ h2{font-weight:500;font-size:19px;margin:12px 0 0}
   nav{flex-direction:row;gap:22px}
   nav a{min-height:44px;display:flex;align-items:center}
   nav a[aria-current="page"]::before{display:none}
-  nav a[aria-current="page"]{text-decoration:underline;text-underline-offset:6px}
-  .connect{flex-direction:row;flex-wrap:wrap;gap:18px}
+  nav a[aria-current="page"]{text-decoration:underline;text-decoration-color:var(--blue);text-decoration-thickness:2px;text-underline-offset:6px}
+  .connect{flex-direction:row;flex-wrap:wrap;gap:4px 18px}
   .connect a,.connect button{min-height:44px;display:flex;align-items:center}
+  .email{flex-basis:100%}
   body{font-size:18px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -71,7 +76,7 @@ h2{font-weight:500;font-size:19px;margin:12px 0 0}
 <body>
 <div class="wrap">
   <aside>
-    <a class="name" href="#about">Ludovica Saccavini</a>
+    <a class="name" href="#about">Ludovica Saccavini<span>.</span></a>
     <p class="tag">Venture Investor &amp; Builder</p>
     <nav aria-label="Main">
       <a href="#about" data-view="about">About</a>
