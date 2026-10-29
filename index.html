@@ -86,7 +86,7 @@ h2{font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;c
     <nav aria-label="Main">
       <a href="#about" data-view="about">About</a>
       <a href="#investing" data-view="investing">Investing</a>
-      <a href="#things" data-view="things">Things</a>
+      <a href="#projects" data-view="projects">Projects</a>
     </nav>
     <div class="connect">
       <a href="https://www.linkedin.com/in/ludovicasaccavini" target="_blank" rel="noopener">LinkedIn</a>
@@ -118,7 +118,7 @@ h2{font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;c
     <!-- INVESTING -->
     <section id="v-investing" hidden>
       <p>I've spent the past few years investing across AI Infra, Deep Tech, Defense Tech, Construction Tech and Industrial Tech.</p>
-      <p>At Vinthera I helped drive a $20M first close in 8 months and sourced deals that led to $15M in commitments. At Foundamental I helped deploy over $3M and presented 20+ companies at investment committee.</p>
+      <p>At Vinthera I helped drive a $20M first close in 8 months and sourced deals that led to $15M in commitments.</p>
       <h2>Current thesis</h2>
       <div class="thesis">
         <p class="q">Every company will need secure hosting for its agents.</p>
@@ -127,10 +127,10 @@ h2{font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;c
       </div>
     </section>
 
-    <!-- THINGS
+    <!-- PROJECTS
          To add a new item: copy one <li> ... </li> block below, paste it under the others,
          and change the text, the link (href) and the date. -->
-    <section id="v-things" hidden>
+    <section id="v-projects" hidden>
       <p>What I'm working on right now.</p>
       <ul class="list">
         <li><span><a href="funddesk.html">Building FundDesk</a> with a Cornell Tech classmate</span><span class="when">2026</span></li>
@@ -142,9 +142,9 @@ h2{font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;c
 
 <script>
 (function(){
-  var views=["about","investing","things"];
+  var views=["about","investing","projects"];
   function show(){
-    var v=(location.hash||"#about").slice(1); if(views.indexOf(v)<0) v="about";
+    var v=(location.hash||"#about").slice(1); if(v==="things") v="projects"; if(views.indexOf(v)<0) v="about";
     views.forEach(function(n){document.getElementById("v-"+n).hidden=(n!==v);});
     document.querySelectorAll("nav a").forEach(function(a){
       if(a.dataset.view===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
