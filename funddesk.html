@@ -219,10 +219,25 @@ footer p{max-width:90ch}
   .panel,.lesson{padding:22px}
   .shared{display:none}
 }
+
+/* phone first fixes */
+@media (max-width:560px){
+  body{font-size:17px}
+  .small,.r-top p,.r-foot,.proof span,.legend,.docs span,.check,.after p,.flow p,.myths div,footer,.lesson .eg{font-size:16px}
+  .stamp,.docs .tag,.dot{font-size:14px}
+  .amt label small{font-size:13px}
+  .brand{min-height:44px}
+  summary{min-height:44px;align-items:center}
+  .docs a{display:inline-flex;min-height:44px;align-items:center}
+  .cbar{font-size:16px}
+  .flow .n,.proof b,.fit ul,.myths div,.cbar div,.crow b{font-size:16px}
+  .pbanner a{display:inline-flex;min-height:44px;align-items:center}
+  .pbanner{font-size:16px!important}
+}
 </style>
 </head>
 <body>
-<div style="background:#1C2B24;color:#fff;font-size:14px;padding:10px 24px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><b>Prototype.</b> This is a demo of FundDesk. Sign up forms are not live yet.</span><a href="index.html#projects" style="color:#fff">&larr; Ludovica Saccavini</a></div>
+<div class="pbanner" style="background:#1C2B24;color:#fff;font-size:14px;padding:10px 24px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><b>Prototype.</b> This is a demo of FundDesk. Sign up forms are not live yet.</span><a href="index.html#projects" style="color:#fff">&larr; Ludovica Saccavini</a></div>
 
 <header>
   <div class="wrap">
