@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent Hosting Thesis · Ludovica Saccavini</title>
+<title>Secure Hosting &amp; A2A Communication Thesis · Ludovica Saccavini</title>
 <meta name="description" content="Every company will need secure hosting for its agents. A Venture Fluent thesis by Ludovica Saccavini.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,6 +46,7 @@ section,header{display:flex;flex-direction:column;gap:20px;min-width:0}
 .versions .old p{color:var(--muted);font-size:17px}
 .versions .now{border-color:var(--blue);box-shadow:inset 0 3px 0 var(--blue)}
 .versions .now p{font-size:18px}
+.versions.one{grid-template-columns:1fr}
 
 /* glossary */
 .gloss{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
@@ -148,9 +149,8 @@ tr.pick td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
     <span class="meta">Venture Fluent · Module 2 · October 27, 2026</span>
     <h1>Every company will need <em>secure hosting</em> for its agents.</h1>
     <p class="lede">Agents are leaving employees' laptops and starting to work in teams. The winners host them securely, set house rules for how they talk to each other, and prove they are safe.</p>
-    <div class="versions">
-      <div class="card old"><span class="label" style="color:var(--muted)">Class prototype</span><p>As swarms turn whole jobs into products and their owners struggle to control cost, safety and risk, the conversation between agents becomes the new control point. We back operators who write its rulebook.</p></div>
-      <div class="card now"><span class="label">Rewritten</span><p>Agents are leaving laptops and starting to work in teams. We back the platforms that host them securely, let colleagues share the best ones, and set the house rules for how they talk, with proof a CISO or insurer can sign.</p></div>
+    <div class="versions one">
+      <div class="card now"><span class="label">Final wording</span><p>Agents are leaving laptops and starting to work in teams. Every company will need to host them securely, set house rules for how they talk, and prove they are safe to a CISO or insurer. The giants own the basics; the open space is in the middle and on top.</p></div>
     </div>
   </header>
 
@@ -263,14 +263,6 @@ tr.pick td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
     <div class="risks">
       <div class="card risk"><h3>Anti thesis</h3><p>This is the giants' turf. AWS, Microsoft, Google, OpenAI and Anthropic all host agents, and OpenAI already lets teams share them. Will big companies want neutral hosting, or just pick one vendor?</p></div>
       <div class="card risk"><h3>Kill signal</h3><p>Most large enterprises pick one vendor to host all their agents, that vendor ships house rules for agent to agent work, and neutral players like Dust and Credal stall before their next round.</p></div>
-      <div class="card risk full"><h3>Alternatives that lost</h3><ul>
-        <li><b>Kill switches</b><span>Now a feature</span></li>
-        <li><b>Orchestration frameworks</b><span>Labs give them away</span></li>
-        <li><b>AI spend control</b><span>Stripe and Ramp moved first</span></li>
-        <li><b>Agent identity</b><span>8+ acquisitions in a year</span></li>
-        <li><b>Governance dashboards</b><span>Suites own them</span></li>
-        <li><b>Raw sandbox compute</b><span>Sells to labs, not enterprises</span></li>
-      </ul></div>
     </div>
   </section>
 

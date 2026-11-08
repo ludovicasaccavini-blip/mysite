@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Maintenance and Security Thesis · Ludovica Saccavini</title>
+<meta name="description" content="Supporting research for the agent hosting thesis: who closes the gap between finding a bug and fixing it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+/* Layout: a wider reading page that matches the main site. Same font and ink blue, with cards, a layer stack and grids to give the argument shape. */
+:root{
+  --bg:#FCFCFA; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#646B78; --rule:#E2E5EC;
+  --blue:#2343B0; --blue-mid:#6F84D1; --blue-soft:#E9EDF9; --blue-faint:#F4F6FC;
+  --font:"Newsreader","Iowan Old Style",Georgia,serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.55;border-top:3px solid var(--blue)}
+::selection{background:var(--blue-soft)}
+.wrap{max-width:58rem;margin:0 auto;padding-block:48px 72px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:64px}
+p{margin:0;text-wrap:pretty}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--blue);text-underline-offset:3px;text-decoration-thickness:1.5px;transition:color .15s}
+a:hover{color:var(--blue)}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:2px}
+h1,h2,h3{font-weight:500;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,5.6vw,52px);line-height:1.08;letter-spacing:-.01em;max-width:18ch}
+h1 em{font-style:italic;color:var(--blue)}
+h2{font-size:clamp(24px,3vw,30px);line-height:1.15}
+h3{font-size:21px;line-height:1.2}
+.label{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:500}
+.muted{color:var(--muted)}
+section,header{display:flex;flex-direction:column;gap:20px;min-width:0}
+.sec-head{display:flex;flex-direction:column;gap:10px;max-width:40rem}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:20px 22px;min-width:0}
+
+/* header */
+.back{font-size:16px;text-decoration:none;color:var(--muted)}
+.back:hover{color:var(--blue)}
+.meta{font-size:15px;color:var(--muted)}
+.lede{font-size:21px;line-height:1.5;max-width:40rem}
+.versions{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.versions .card{display:flex;flex-direction:column;gap:10px}
+.versions .old p{color:var(--muted);font-size:17px}
+.versions .now{border-color:var(--blue);box-shadow:inset 0 3px 0 var(--blue)}
+.versions .now p{font-size:18px}
+
+/* glossary */
+.gloss{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.gloss div{border-top:2px solid var(--blue);padding-top:12px;display:flex;flex-direction:column;gap:4px;font-size:16px;color:var(--muted);min-width:0}
+.gloss b{font-weight:600;font-size:18px;color:var(--ink)}
+
+/* stack diagram */
+.stackviz{display:grid;grid-template-columns:minmax(0,1fr) 15rem;gap:28px;align-items:center}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-radius:3px;font-size:17px}
+.bar b{font-weight:600}
+.bar span{font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.b3{background:var(--blue);color:#fff;margin:0 12%}
+.b2{background:var(--blue-mid);color:#fff;margin:0 6%}
+.b1{background:var(--blue-soft);color:var(--blue)}
+.base{display:flex;justify-content:center;font-size:14px;color:var(--muted);border-top:1px dashed var(--rule);padding-top:8px;margin-top:4px}
+.stackviz aside{font-size:16px;color:var(--muted);border-left:2px solid var(--rule);padding-left:16px;display:flex;flex-direction:column;gap:8px}
+.stackviz aside b{color:var(--ink);font-weight:600}
+
+/* layers */
+.layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.layer{display:flex;flex-direction:column;gap:14px;border-top:3px solid var(--c)}
+.layer .chip{align-self:flex-start;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);background:var(--blue-faint);padding:3px 9px;border-radius:999px}
+.layer .q{font-style:italic;color:var(--muted);font-size:17px}
+.layer h4{margin:0 0 6px;font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.layer ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:16px}
+.layer .taken{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--rule)}
+.layer .open{color:var(--blue)}
+.l1{--c:var(--blue-soft)} .l2{--c:var(--blue-mid)} .l3{--c:var(--blue)}
+
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.fact{display:flex;flex-direction:column;gap:10px}
+.fact .num{font-size:44px;line-height:1;color:var(--blue);font-weight:500;font-variant-numeric:tabular-nums}
+.fact p{font-size:17px}
+.fact .src{font-size:14px;color:var(--muted);margin-top:auto}
+.fact.surprise{background:var(--blue);border-color:var(--blue);color:#fff}
+.fact.surprise .label{color:#C9D3F5}
+.fact.surprise .src{color:#C9D3F5}
+.fact.surprise b{font-weight:600;font-size:21px;display:block;margin-bottom:6px}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:16px}
+th,td{text-align:left;vertical-align:top;padding:13px 16px;border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+th{font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--blue-faint)}
+td.k{font-weight:600;white-space:nowrap}
+tr.pick td{background:var(--blue-soft)}
+tr.pick td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
+.tag{font-size:13px;letter-spacing:.04em;padding:2px 8px;border-radius:999px;white-space:nowrap;background:var(--blue-faint);color:var(--blue)}
+.tag.t2{background:var(--blue-mid);color:#fff}
+.tag.t3{background:var(--blue);color:#fff}
+.why{display:flex;gap:14px;align-items:flex-start}
+.why .label{white-space:nowrap;padding-top:3px}
+
+/* risks */
+.risks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.risk{display:flex;flex-direction:column;gap:10px}
+.risk.full{grid-column:1/-1}
+.risk ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.risk li{border:1px solid var(--rule);border-radius:3px;padding:10px 12px;font-size:15px;display:flex;flex-direction:column;gap:2px}
+.risk li b{font-weight:600;font-size:16px}
+.risk li span{color:var(--muted)}
+
+/* sources */
+.sources{font-size:15px;color:var(--muted);display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--rule);padding-top:24px}
+.sources ul{margin:0;padding-left:18px;columns:2;column-gap:28px}
+.sources li{break-inside:avoid;margin-bottom:4px}
+.sources a{color:var(--muted);overflow-wrap:anywhere}
+
+@media (max-width:820px){
+  .layers{grid-template-columns:1fr}
+  .gloss{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stackviz{grid-template-columns:1fr}
+  .risk ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:600px){
+  body{font-size:17px}
+  .wrap{padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));gap:48px}
+  .versions,.facts,.risks{grid-template-columns:1fr}
+  .risk ul{grid-template-columns:1fr}
+  .sources ul{columns:1}
+  .why{flex-direction:column;gap:4px}
+  .b3,.b2{margin:0}
+  .back{display:inline-flex;min-height:44px;align-items:center}
+  .meta,.fact .src,.base,.sources,.stackviz aside,.risk li{font-size:16px}
+  .label,.chip,.layer h4,th,.tag{font-size:14px}
+  .sources a{display:inline-block;padding-block:6px}
+  table{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* research page additions */
+.line-card{border-color:var(--blue);box-shadow:inset 0 3px 0 var(--blue);display:flex;flex-direction:column;gap:10px;max-width:46rem}
+.line-card p{font-size:21px;line-height:1.45}
+.hyp-list{display:grid;grid-template-columns:1fr;gap:16px}
+.hyp-card{display:flex;flex-direction:column;gap:12px}
+.hyp-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.hid{font-size:14px;letter-spacing:.06em;color:var(--muted)}
+.hyp-card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:16px;color:var(--ink)}
+.was{color:var(--muted);font-style:italic;font-size:17px}
+.now-line{font-size:17px;border-top:1px solid var(--rule);padding-top:12px}
+.now-line b{color:var(--blue);font-weight:600}
+.tag:not(.t2):not(.t3){background:var(--blue-soft);color:var(--blue)}
+.ws-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ws-card{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.ws-card h3{font-size:20px}
+.ws-card p{font-size:17px}
+.small{font-size:15px}
+.zone{font-size:14px;color:var(--blue);margin-top:auto}
+
+
+.back-link{font-size:16px}
+@media (max-width:820px){ .ws-grid{grid-template-columns:1fr} }
+@media (max-width:600px){ .line-card p{font-size:19px} }
+.research-link{display:flex;justify-content:space-between;align-items:center;gap:16px;text-decoration:none;color:var(--ink);font-size:20px}
+.research-link:hover{border-color:var(--blue);color:var(--blue)}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <header>
+    <a class="back" href="index.html#investing">&larr; Ludovica Saccavini</a>
+    <span class="meta">Thesis · As of November 2, 2026</span>
+    <h1>System maintenance <em>and security</em></h1>
+    <p class="lede">AI made finding bugs almost free. Fixing still runs on people. PHP2Shell showed what that costs: a 2024 finding nobody fixed, a volunteer building old packages, governments offline.</p>
+    <div class="card line-card">
+      <span class="label">Why it is big and burning</span>
+      <p>Finding bugs is now almost free, and fixing them is not. Anthropic's Glasswing project found more than 10,000 flaws in one month and 97 were patched. PHP2Shell, a bug sitting in PHP since 2012, was found with AI and reached about 70% of the web. Most of the world's software cannot be patched quickly, and every gap is a live door for attackers. That is why the budgets are moving now.</p>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <span class="label">Five hypotheses</span>
+      <h2>What held up, and what changed</h2>
+    </div>
+    <div class="hyp-list">
+    <article class="card hyp-card">
+      <div class="hyp-top"><span class="tag t3">Supported</span><span class="hid">H1</span></div>
+      <h3>Finding bugs is no longer the bottleneck</h3>
+      <p class="was">Starting hypothesis: AI made discovery fast; the gap is fixing.</p>
+      <ul><li>Of 1,596 bugs Anthropic&#x27;s discovery reported to open source projects, 97 were fixed when CSA checked.</li><li>NIST parked about 29,000 backlogged CVEs as Not Scheduled in April 2026.</li><li>Finders are richly funded: XBOW at $1B+, depthfirst at $580M post, RunSybil $40M.</li></ul>
+      <p class="now-line"><b>Now.</b> Kept. Discovery is where the money went first, which is exactly why the fix side is underbuilt.</p>
+    </article>
+    <article class="card hyp-card">
+      <div class="hyp-top"><span class="tag t3">Supported</span><span class="hid">H2</span></div>
+      <h3>The choke point is upstream maintenance</h3>
+      <p class="was">Starting hypothesis: Volunteer maintainers cannot absorb AI scale reports.</p>
+      <ul><li>A PHP core developer found part of the bug in a 2024 audit; the team could not agree on a fix, so it waited.</li><li>The PHP Foundation had 13 staff; one volunteer built packages for old versions.</li><li>The PHP security team funded in 2026 is one engineer in residence for six months.</li></ul>
+      <p class="now-line"><b>Now.</b> Kept, with a twist: this is funded by grants today. A company can win here only by selling to the people downstream who need the fix.</p>
+    </article>
+    <article class="card hyp-card">
+      <div class="hyp-top"><span class="tag t2">Partly</span><span class="hid">H3</span></div>
+      <h3>You cannot fix what you cannot see</h3>
+      <p class="was">Starting hypothesis: Inventory is the first gap.</p>
+      <ul><li>59% of PHP hosts that show a version run a branch with no fix; 740,000 hide their version.</li><li>PHP inside firewalls and control panels was attacked too.</li><li>But ServiceNow paid $7.75B for Armis and Tenable bought Vulcan: big platforms already own inventory.</li></ul>
+      <p class="now-line"><b>Now.</b> Narrowed: the open gap is inventory inside appliances and vendor software, not inventory in general.</p>
+    </article>
+    <article class="card hyp-card">
+      <div class="hyp-top"><span class="tag t3">Supported</span><span class="hid">H4</span></div>
+      <h3>Shields buy time, not safety</h3>
+      <p class="was">Starting hypothesis: Virtual patching matters but is not a fix.</p>
+      <ul><li>Cloudflare had rules live about 9 hours before disclosure, and attackers changed payloads within hours.</li><li>A third flaw came out two days after the patch, fixable only by a config change.</li><li>Oligo raised $60M on runtime blocking, with revenue up 300% in a year.</li></ul>
+      <p class="now-line"><b>Now.</b> Kept. Shields are the bridge; the business sits on either side of them, in the fix and in proof the fix is safe.</p>
+    </article>
+    <article class="card hyp-card">
+      <div class="hyp-top"><span class="tag">Corrected</span><span class="hid">H5</span></div>
+      <h3>Insurance will force patch speed</h3>
+      <p class="was">Starting hypothesis: Carriers will refuse claims for unpatched systems.</p>
+      <ul><li>Early losses came from precautionary shutdowns, not breaches (Marsh Re).</li><li>Coalition says it has no clause blocking cover for skipped patches.</li><li>Modelers disagree on how systemic this is: CyberCube calls it not a 1 in 200 year event.</li></ul>
+      <p class="now-line"><b>Now.</b> Corrected: insurers will price patch speed rather than exclude it. They need data on it first, which is the opening.</p>
+    </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="label">Where I would look first</span>
+      <h2>Five white spaces</h2>
+      <p class="muted">Where the player map is thin and the business model is clear.</p>
+    </div>
+    <div class="ws-grid">
+    <article class="card ws-card">
+      <span class="tag t3">Moving fastest</span>
+      <h3>Backports for the long tail</h3>
+      <p>AI written, tested fixes for retired branches of PHP and other runtimes, sold as support contracts.</p>
+      <p class="muted small">59% of exposed PHP hosts run unfixed branches; CRA makes old code a compliance issue; HeroDevs raised $125M.</p>
+      <span class="zone">Zone: Backports &amp; old versions</span>
+    </article>
+    <article class="card ws-card">
+      <span class="tag t3">Moving fastest</span>
+      <h3>Patch proof in minutes</h3>
+      <p>Rehearse a patch on a copy of the real app and its old dependencies, then certify it safe to ship.</p>
+      <p class="muted small">Five months to fix complex apps once a patch is ready; only 9% patch in 24 hours.</p>
+      <span class="zone">Zone: Patch testing &amp; rollout</span>
+    </article>
+    <article class="card ws-card">
+      <span class="tag t2">Shifting</span>
+      <h3>Maintainer triage copilot</h3>
+      <p>Verify, dedupe and draft fixes for AI reports before they reach a small volunteer team.</p>
+      <p class="muted small">97 of 1,596 Glasswing bugs fixed; PHP has one engineer in residence for ecosystem security.</p>
+      <span class="zone">Zone: Triage &amp; disclosure</span>
+    </article>
+    <article class="card ws-card">
+      <span class="tag t2">Shifting</span>
+      <h3>Inventory inside appliances</h3>
+      <p>Find PHP and other runtimes inside firewalls, routers and control panels that web scanners skip.</p>
+      <p class="muted small">Attacks on firewall management interfaces; old cPanel PHP branches got no fix.</p>
+      <span class="zone">Zone: Exposure &amp; inventory</span>
+    </article>
+    <article class="card ws-card">
+      <span class="tag t2">Shifting</span>
+      <h3>Patch speed score for insurers</h3>
+      <p>Measured time to patch per company, sold to carriers and brokers who now need it.</p>
+      <p class="muted small">Shutdowns drove early losses; carriers treat skipped patches differently.</p>
+      <span class="zone">Zone: Cyber insurance</span>
+    </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="label">Money in the fix chain</span>
+      <h2>Deals, Dec 2024 to Aug 2026</h2>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Lead or buyer</th><th>Company</th><th>Amount</th><th>Type</th><th>When</th></tr></thead>
+      <tbody><tr><td>ServiceNow</td><td class="k">Armis</td><td>$7.75B</td><td>Acquisition</td><td class="muted">Dec 2025</td></tr><tr><td>Wiz</td><td class="k">Dazz</td><td>$450M</td><td>Acquisition</td><td class="muted">Nov 2024</td></tr><tr><td>Tenable</td><td class="k">Vulcan Cyber</td><td>~$150M reported</td><td>Acquisition</td><td class="muted">Jan 2025</td></tr><tr><td>Arctic Wolf</td><td class="k">Sevco Security</td><td>Undisclosed</td><td>Acquisition</td><td class="muted">Feb 2026</td></tr><tr><td>Echo</td><td class="k">Minimus (assets)</td><td>Undisclosed</td><td>Acquisition</td><td class="muted">Aug 2026</td></tr><tr><td>CyberStarts, Doug Leone</td><td class="k">Zafran (NYC)</td><td>$150M</td><td>Funding</td><td class="muted">Mar 2026</td></tr><tr><td>PSG</td><td class="k">HeroDevs</td><td>$125M</td><td>Funding</td><td class="muted">Jul 2025</td></tr><tr><td>DFJ Growth, Northzone</td><td class="k">XBOW</td><td>$120M Series C</td><td>Funding</td><td class="muted">Mar 2026</td></tr><tr><td>Meritech</td><td class="k">depthfirst</td><td>$80M Series B</td><td>Funding</td><td class="muted">Mar 2026</td></tr><tr><td>Ballistic, Lightspeed and others</td><td class="k">Oligo</td><td>$60M</td><td>Funding</td><td class="muted">Aug 2026</td></tr><tr><td>Bain Capital</td><td class="k">Cogent</td><td>$42M Series A</td><td>Funding</td><td class="muted">Feb 2026</td></tr><tr><td>Khosla</td><td class="k">RunSybil</td><td>$40M</td><td>Funding</td><td class="muted">Mar 2026</td></tr><tr><td>N47</td><td class="k">Echo</td><td>$35M Series A</td><td>Funding</td><td class="muted">Dec 2025</td></tr><tr><td>Vertex Israel</td><td class="k">Seal Security</td><td>$13M Series A</td><td>Funding</td><td class="muted">Jul 2025</td></tr><tr><td>Hetz, Brightmind</td><td class="k">Onit Security</td><td>$11M seed</td><td>Funding</td><td class="muted">Mar 2026</td></tr></tbody>
+    </table></div>
+    <p class="muted small">Prices are as reported by the press where companies did not disclose terms. PHP2Shell is still unfolding. Sources for each figure sit in the full research below.</p>
+  </section>
+
+  <section id="deep-dive">
+    <div class="sec-head">
+      <span class="label">Deep dive</span>
+      <h2>Interactive map: zones, companies and sources</h2>
+      <p class="muted">Ten zones and their company cards, with sources for every figure. Built for going deeper than this page.</p>
+    </div>
+    <a class="card research-link" href="system-maintenance-security-map.html"><span>Open the interactive map</span><span aria-hidden="true">&rarr;</span></a>
+  </section>
+
+</main>
+</body>
+</html>

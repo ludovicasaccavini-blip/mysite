@@ -1,0 +1,611 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>System Maintenance Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+/* Layout: a Figma-like canvas of frames you pan and zoom; tap a frame to dive into the zone, tap a company for its card */
+:root{
+  --canvas:#e9edf2; --dot:#c7cfda; --frame:#ffffff; --ink:#141922; --muted:#5b6575; --line:#d6dce5;
+  --select:#0b84ff; --select-soft:#e3f0ff;
+  --hot:#e5482f; --hot-soft:#fde7e2; --warm:#c98a06; --warm-soft:#fbf1d6; --calm:#5d7287; --calm-soft:#e7edf3;
+  --acq:#7a4cd9; --acq-soft:#efe8fd; --early:#14875a; --early-soft:#dff3ea; --scale:#0b6fb8; --scale-soft:#e0eef9; --big:#2b3340; --big-soft:#e6e9ee;
+  color-scheme:light;
+  --display:"Newsreader","Iowan Old Style",Georgia,serif;
+  --body:"Newsreader","Iowan Old Style",Georgia,serif;
+  --mono:"Newsreader","Iowan Old Style",Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--canvas);color:var(--ink);font-family:var(--body);font-size:18.8px;line-height:1.5}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--select);outline-offset:2px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--frame);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--frame)}
+.bar-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+.brand{font-family:var(--display);font-weight:700;font-size:22.5px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.brand i{width:10px;height:10px;border-radius:2px;background:var(--select);display:inline-block}
+.crumbs{font-family:var(--mono);font-size:15px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;min-width:0}
+.crumbs button{background:none;border:0;padding:2px 4px;border-radius:4px;cursor:pointer;color:var(--muted)}
+.crumbs button:hover{background:var(--select-soft);color:var(--select)}
+.crumbs b{color:var(--ink);font-weight:500}
+.tabs{margin-left:auto;display:flex;background:var(--canvas);border-radius:8px;padding:3px;gap:2px}
+.tabs button{border:0;background:none;padding:6px 12px;border-radius:6px;font-size:16.2px;font-weight:500;cursor:pointer;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--frame);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* intro strip */
+.intro{padding-block:18px 6px;display:grid;gap:14px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start}
+.intro h1{font-family:var(--display);font-size:clamp(26px,4vw,40px);line-height:1.05;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.intro p{margin:8px 0 0;color:var(--muted);max-width:62ch}
+.signal{background:var(--frame);border:1px solid var(--line);border-left:3px solid var(--hot);border-radius:6px;padding:12px 14px;font-size:16.9px}
+.signal .k{font-family:var(--mono);font-size:13.8px;letter-spacing:.06em;text-transform:uppercase;color:var(--hot)}
+.signal p{margin:4px 0 0;color:var(--ink)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:15px;color:var(--muted);padding-block:8px 10px;align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:10px;height:10px;border-radius:50%}
+.tagsw{font-family:var(--mono);font-size:13.1px;padding:1px 6px;border-radius:4px}
+
+/* canvas */
+.stage{position:relative;height:min(74vh,820px);margin-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background-color:var(--canvas);background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:22px 22px;touch-action:none;cursor:grab}
+.stage.drag{cursor:grabbing}
+.world{position:absolute;left:0;top:0;width:1760px;height:1100px;transform-origin:0 0}
+.world.anim{transition:transform .5s cubic-bezier(.3,.7,.2,1)}
+.group-label{position:absolute;font-family:var(--mono);font-size:16.2px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.group-label b{color:var(--ink);font-weight:500}
+.frame{position:absolute;width:310px}
+.frame .fl{font-family:var(--mono);font-size:13.8px;color:var(--muted);margin:0 0 5px 2px;display:flex;justify-content:space-between}
+.card{display:block;width:100%;text-align:left;background:var(--frame);border:1px solid var(--line);border-radius:4px;padding:14px 14px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:var(--select);box-shadow:0 0 0 1px var(--select)}
+.card h3{font-family:var(--display);font-size:25px;line-height:1.15;margin:8px 0 4px;letter-spacing:-.01em;font-weight:600}
+.card .q{color:var(--muted);font-size:16.2px;margin:0 0 10px}
+.card ul{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:16.2px}
+.card li{display:flex;justify-content:space-between;gap:8px;border-top:1px dashed var(--line);padding-top:4px}
+.card li span:last-child{font-family:var(--mono);font-size:13.8px;color:var(--muted)}
+.card .foot{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.heat{font-family:var(--mono);font-size:13.1px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;display:inline-flex;gap:5px;align-items:center}
+.heat::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.h3{color:var(--hot);background:var(--hot-soft)} .h2{color:var(--warm);background:var(--warm-soft)} .h1{color:var(--calm);background:var(--calm-soft)}
+.mini{font-family:var(--mono);font-size:13.1px;padding:2px 6px;border-radius:4px;background:var(--canvas);color:var(--muted)}
+.mini.acq{background:var(--acq-soft);color:var(--acq)}
+.heatlens .frame[data-heat="3"] .card{border-color:var(--hot);box-shadow:0 0 0 2px var(--hot-soft)}
+.heatlens .frame[data-heat="1"] .card{opacity:.62}
+.zoomctl{position:absolute;right:10px;bottom:10px;display:flex;gap:4px;align-items:center;background:var(--frame);border:1px solid var(--line);border-radius:8px;padding:3px;z-index:3}
+.zoomctl button{border:0;background:none;min-width:30px;height:28px;border-radius:5px;cursor:pointer;font-size:17.5px}
+.zoomctl button:hover{background:var(--select-soft)}
+.zoomctl .pct{font-family:var(--mono);font-size:14.4px;min-width:44px;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.lensbtn{position:absolute;left:10px;bottom:10px;z-index:3;background:var(--frame);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:15.6px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.lensbtn[aria-pressed="true"]{border-color:var(--hot);color:var(--hot)}
+.hint{position:absolute;left:50%;top:10px;transform:translateX(-50%);font-family:var(--mono);font-size:13.8px;color:var(--muted);background:var(--frame);border:1px solid var(--line);padding:3px 8px;border-radius:999px;z-index:3;white-space:nowrap}
+
+/* mobile: frames stack */
+@media (max-width:760px){
+  .intro{grid-template-columns:1fr}
+  .stage{height:auto;overflow:visible;border:0;background-image:none;margin-inline:0;touch-action:auto;cursor:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .world{position:static;width:auto;height:auto;transform:none!important;display:flex;flex-direction:column;gap:14px;padding-bottom:20px}
+  .frame{position:static;width:100%}
+  .group-label{position:static;margin-top:10px}
+  .zoomctl,.hint{display:none}
+  .lensbtn{position:static;margin:0 0 6px}
+}
+
+/* zone view */
+.view{animation:zin .38s cubic-bezier(.3,.7,.2,1)}
+@keyframes zin{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view{animation:none}.world.anim{transition:none}}
+.zone{padding-block:20px 60px;max-width:1240px;margin:0 auto}
+.zhead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:20px;align-items:start}
+.zhead h2{font-family:var(--display);font-size:clamp(28px,4.5vw,46px);line-height:1.02;letter-spacing:-.025em;margin:10px 0 6px;text-wrap:balance}
+.zhead .q{font-size:21.2px;color:var(--muted);margin:0}
+.zhead .line{margin:10px 0 0;max-width:62ch}
+.verdict{background:var(--frame);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.verdict .k{font-family:var(--mono);font-size:13.8px;text-transform:uppercase;letter-spacing:.06em;color:var(--select)}
+.verdict p{margin:6px 0 0;font-family:var(--display);font-size:23.8px;line-height:1.25;font-weight:600}
+.verdict .stat{margin-top:10px;font-size:16.2px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
+.col{background:var(--frame);border:1px solid var(--line);border-radius:6px;padding:14px 16px;min-width:0}
+.col h4{margin:0 0 8px;font-family:var(--mono);font-size:14.4px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:500}
+.col.entail{border-color:var(--select);background:linear-gradient(var(--select-soft),var(--frame) 70%)}
+.col.entail h4{color:var(--select)}
+.col ul{margin:0;padding-left:18px;display:grid;gap:7px;font-size:17.5px}
+.subs-title{font-family:var(--mono);font-size:14.4px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:30px 0 10px}
+.subs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+@media (max-width:400px){.subs{grid-template-columns:1fr}}
+.sub{background:var(--frame);border:1px solid var(--line);border-radius:4px;padding:12px 12px 14px;min-width:0}
+.sub.ws{border-style:dashed;border-color:var(--hot)}
+.sub h5{margin:0 0 4px;font-family:var(--display);font-size:20px;font-weight:600;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.sub h5 small{font-family:var(--mono);font-size:13.1px;color:var(--hot);font-weight:400;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.sub .sd{font-size:16.2px;color:var(--muted);margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--canvas);border-radius:6px;padding:5px 9px 5px 7px;font-size:16.2px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;text-align:left}
+.chip:hover{border-color:var(--select);background:var(--select-soft)}
+.chip i{width:7px;height:7px;border-radius:2px;flex:none}
+.t-big i,.dot-big{background:var(--big)} .t-scale i,.dot-scale{background:var(--scale)} .t-early i,.dot-early{background:var(--early)} .t-acq i,.dot-acq{background:var(--acq)}
+.srcs{margin-top:30px;font-size:15.6px;color:var(--muted)}
+.srcs a{color:var(--select);text-decoration:none;overflow-wrap:anywhere}
+.srcs a:hover{text-decoration:underline}
+.srcs ol{padding-left:18px;display:grid;gap:3px;margin:6px 0 0}
+.backbtn{border:1px solid var(--line);background:var(--frame);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:16.2px}
+.zonenav{display:flex;gap:8px;justify-content:space-between;margin-top:26px;flex-wrap:wrap}
+.zonenav button{border:1px solid var(--line);background:var(--frame);border-radius:6px;padding:8px 12px;cursor:pointer;font-size:16.9px}
+.zonenav button:hover{border-color:var(--select)}
+
+/* company panel */
+.scrim{position:fixed;inset:0;background:rgba(10,14,20,.28);z-index:40}
+.panel{position:fixed;z-index:41;background:var(--frame);border:1px solid var(--line);box-shadow:0 12px 40px rgba(0,0,0,.18);
+  right:16px;top:calc(16px + env(safe-area-inset-top,0px));width:min(400px,calc(100vw - 32px));max-height:calc(100% - 32px);overflow:auto;border-radius:10px;padding:18px 18px 20px;animation:pin .25s ease}
+@keyframes pin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (max-width:760px){.panel{left:0;right:0;bottom:0;top:auto;width:100%;border-radius:14px 14px 0 0;max-height:78vh;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}}
+.panel .pk{font-family:var(--mono);font-size:13.8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.panel h3{font-family:var(--display);font-size:32.5px;margin:4px 0 8px;letter-spacing:-.015em;line-height:1.1}
+.panel .row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.panel p{margin:0 0 12px}
+.panel .ent{background:var(--select-soft);border-radius:6px;padding:10px 12px;font-size:16.9px}
+.panel .ent b{font-family:var(--mono);font-size:13.1px;letter-spacing:.06em;text-transform:uppercase;color:var(--select);display:block;margin-bottom:3px;font-weight:500}
+.close{position:absolute;right:10px;top:10px;border:0;background:var(--canvas);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:20px}
+.pill{font-family:var(--mono);font-size:13.1px;padding:2px 7px;border-radius:4px}
+.p-big{background:var(--big-soft);color:var(--big)} .p-scale{background:var(--scale-soft);color:var(--scale)} .p-early{background:var(--early-soft);color:var(--early)} .p-acq{background:var(--acq-soft);color:var(--acq)}
+
+/* thesis view */
+.thesis{padding-block:22px 60px;max-width:1100px;margin:0 auto}
+.thesis h2{font-family:var(--display);font-size:clamp(28px,4.5vw,44px);letter-spacing:-.025em;line-height:1.05;margin:0 0 6px}
+.thesis > p{color:var(--muted);max-width:66ch;margin:0}
+.hyp{display:grid;gap:12px;margin-top:20px}
+.h{background:var(--frame);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px}
+.h .v{font-family:var(--mono);font-size:13.8px;text-transform:uppercase;letter-spacing:.06em}
+.v-s{color:var(--early)} .v-c{color:var(--hot)} .v-p{color:var(--warm)}
+.h .v strong{display:block;font-family:var(--display);font-size:37.5px;color:var(--ink);letter-spacing:-.02em;text-transform:none;font-weight:700;line-height:1}
+.h h3{margin:0 0 4px;font-family:var(--display);font-size:23.8px;font-weight:600;line-height:1.25}
+.h .was{color:var(--muted);font-size:16.2px;margin:0 0 8px}
+.h ul{margin:0;padding-left:18px;display:grid;gap:5px;font-size:17.5px}
+.h .now{margin-top:10px;font-size:17.5px;background:var(--canvas);border-radius:5px;padding:8px 10px}
+@media (max-width:640px){.h{grid-template-columns:1fr;gap:8px}.cols{grid-template-columns:1fr}.zhead{grid-template-columns:1fr}}
+.ws-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:14px}
+.wsc{background:var(--frame);border:1px dashed var(--hot);border-radius:6px;padding:14px;min-width:0}
+.wsc h4{margin:0 0 6px;font-family:var(--display);font-size:21.2px;font-weight:600}
+.wsc p{margin:0 0 8px;font-size:16.9px}
+.wsc .ev{font-size:15.6px;color:var(--muted)}
+.sec{font-family:var(--mono);font-size:14.4px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:34px 0 4px}
+.tbl{overflow-x:auto;background:var(--frame);border:1px solid var(--line);border-radius:6px;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:16.9px;min-width:620px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:13.8px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.lay{display:inline-block;font-family:var(--mono);font-size:13.1px;padding:1px 6px;border-radius:4px;background:var(--canvas);color:var(--muted)}
+.foot-note{font-size:15px;color:var(--muted);margin-top:22px;max-width:80ch}
+</style>
+
+<header class="bar"><div class="wrap bar-in">
+  <a class="brand" href="system-maintenance-security.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:8px"><i></i>System Maintenance Map</a>
+  <nav class="crumbs" id="crumbs" aria-label="Location"></nav>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-map" aria-selected="true">Map</button>
+    <button role="tab" id="tab-thesis" aria-selected="false">Thesis</button>
+  </div>
+</div></header>
+
+<main id="main"></main>
+
+<div id="scrim" class="scrim" hidden></div>
+<aside id="panel" class="panel" hidden aria-live="polite"></aside>
+
+<script>
+const T={big:"Incumbent",scale:"Scaleup",early:"Early stage",acq:"Acquired"};
+const HEAT={3:"Moving fastest",2:"Shifting",1:"Settling"};
+const GROUPS=[
+ {g:"Find",x:40,ids:["discover"]},
+ {g:"Know",x:390,ids:["exposure","triage"]},
+ {g:"Fix",x:740,ids:["upstream","backport","agents"]},
+ {g:"Ship",x:1090,ids:["shield","rollout"]},
+ {g:"Pay & rules",x:1440,ids:["insure","rules"]}
+];
+const Z={
+discover:{name:"AI vulnerability discovery",heat:3,q:"Who finds the bugs now, and how fast?",
+ line:"AI models that read source code or attack live apps to find flaws that can be exploited. PHP2Shell was found this way, in a bug class humans had called too hard to exploit for years, sitting in PHP since version 5.4 (2012).",
+ verdict:"Finding is getting cheap and crowded. It creates the backlog every other zone on this map has to clear.",
+ stat:"Anthropic's AI discovery reported 1,596 bugs across 281 open source projects. When CSA checked in August 2026, 97 were fixed.",
+ changing:["The labs now run discovery themselves: OpenAI's Patch the Planet with Trail of Bits, Anthropic's Project Glasswing, Google's Big Sleep.","Two teams, Calif and Wiz, found PHP2Shell independently in August 2026. The same bug now often gets found twice, which doubles the reports maintainers handle.","48,185 CVEs were published in 2025, and in April 2026 NIST marked about 29,000 backlogged CVEs as Not Scheduled."],
+ models:["Continuous autonomous pentesting, sold per app (XBOW, RunSybil)","Code scanning that opens a pull request with the fix (depthfirst)","Research and disclosure work paid by labs and bug bounties (Calif, HackerOne)"],
+ entail:["Every new finder adds work for a fixer, so discovery companies need a fix story to stay relevant.","Labs giving discovery away for open source pushes startups toward private company code.","Attackers use the same models, so the time from disclosure to exploit keeps shrinking. An Ivanti Sentry bug was exploited within 40 hours."],
+ subs:[
+  {name:"Autonomous offense",d:"AI agents that attack apps the way a hacker would, around the clock.",cos:[
+   ["XBOW","scale","Series C, $120M at $1B+ (Mar 2026)","Seattle. Autonomous hacking platform that reached the top of the HackerOne leaderboard; $237M raised in total."],
+   ["RunSybil","early","$40M led by Khosla (Mar 2026)","Founded by OpenAI's first security research hire and Meta's former red team lead. Its agent runs continuous pentests on live apps."],
+   ["depthfirst","scale","Series B, $80M at $580M post (Mar 2026)","San Francisco. Finds logic flaws and chained bugs, then opens a pull request with the fix and checks it worked."]]},
+  {name:"Lab and research programs",d:"Big model makers and research firms hunting bugs in shared code.",cos:[
+   ["OpenAI Patch the Planet","big","Frontier lab program (Jun 2026)","Runs with Trail of Bits, HackerOne and Calif on Python, Go, cURL and more. Says it has merged dozens of patches so far."],
+   ["Anthropic Project Glasswing","big","Frontier lab program","Found bugs in every major operating system and browser. The low fix rate on its findings is the clearest picture of the gap."],
+   ["Google Big Sleep","big","DeepMind and Project Zero","AI agent that hunts bugs in open source and Chrome."],
+   ["Calif","early","Research firm","Its researcher Ryan Austin found PHP2Shell with GPT 5.6 Sol during a PHP source audit."],
+   ["Wiz","acq","Google Cloud subsidiary","Found PHP2Shell on its own, using Gemini, GPT and its Wiz Atlas tool."]]}],
+ src:[["PHP2Shell, Wikipedia","https://en.wikipedia.org/wiki/PHP2Shell"],["AI discovery outpacing patch capacity, CSA","https://labs.cloudsecurityalliance.org/research/csa-research-note-ai-vulnerability-discovery-patch-capacity/"],["XBOW Series C, SecurityWeek","https://www.securityweek.com/autonomous-offensive-security-firm-xbow-raises-120m-at-1b-valuation/amp/"],["depthfirst Series B, TAMradar","https://www.tamradar.com/funding-rounds/depthfirst-series-b-80m"],["RunSybil raises $40M, Fortune","https://fortune.com/2026/03/18/exclusive-ai-cybersecurity-startup-runsybil-founded-by-openais-first-security-hire-raises-40-million-led-by-khosla-ventures"],["Patch the Planet, CSO","https://www.csoonline.com/article/4188321/openai-rolls-out-ai-led-push-to-fix-open-source-software-flaws.html"]]},
+
+exposure:{name:"Exposure & inventory",heat:2,q:"Do you even know where PHP runs in your company?",
+ line:"Tools that map every server, appliance and app a company runs, and which versions sit inside them. PHP hides in routers, firewalls, control panels and vendor boxes, not only in websites.",
+ verdict:"Big platforms bought this layer in the last year. What is left are niche gaps, like PHP hidden inside appliances.",
+ stat:"About 59% of internet facing PHP hosts that show a version run a branch with no official fix. About 740,000 more hide their version.",
+ changing:["ServiceNow agreed to buy Armis for $7.75B (Dec 2025) and Arctic Wolf bought Sevco (Feb 2026). Exposure is turning into a feature of big platforms.","PHP2Shell hit appliances too: Palo Alto saw attacks on exposed management interfaces, and a ransomware group was reported going after its firewalls.","Version banners mislead: backported fixes keep old version numbers, so scanners flag patched servers and can miss unpatched ones."],
+ models:["Asset and exposure platforms priced per asset (Armis, Tenable)","Agents that rank bugs by business context and find the owner (Zafran, Onit)","Outside in scanning sold to insurers and brokers"],
+ entail:["The inventory that wins knows what is inside a vendor's box, not just which boxes exist.","Inventory is the input every fixer and insurer needs, so the data can be sold, not just used.","A startup here likely ends in an acquisition, like Vulcan (to Tenable) and Sevco did."],
+ subs:[
+  {name:"Exposure platforms",d:"The system of record for what a company runs.",cos:[
+   ["Armis","acq","Acquired by ServiceNow, $7.75B (Dec 2025)","Started in IoT and factory devices, grew into cyber exposure management."],
+   ["Tenable","big","Public; bought Vulcan Cyber, ~$150M reported (Jan 2025)","Vulnerability management incumbent folding remediation workflows into its platform."],
+   ["Sevco Security","acq","Acquired by Arctic Wolf (Feb 2026)","Paired vulnerability data with asset context to rank risk."]]},
+  {name:"Agentic prioritization",d:"AI that decides which bugs matter here, and who owns them.",cos:[
+   ["Zafran (NYC)","scale","$150M raised (Mar 2026)","New York. AI agents that detect vulnerabilities and fix them with no human in the loop; about 150 employees."],
+   ["Onit Security","early","Seed, $11M (Mar 2026)","Agents rank bugs by business context, find the owning team and run the fix workflow."]]},
+  {name:"PHP inside appliances",ws:true,d:"Finding PHP inside firewalls, routers, control panels and vendor software, where web scanners do not look.",cos:[
+   ["Palo Alto Networks","big","Incumbent","Saw PHP2Shell attacks on exposed management interfaces."],
+   ["cPanel and Plesk","big","Hosting control panels","Bundle PHP for millions of sites. cPanel's packages for PHP 7.3 and older got no fix."]]}],
+ src:[["2.24M internet facing PHP hosts, CybelAngel","https://cybelangel.com/es/blog/critical-php-rce-vulnerabilities-cve-2026-109618-and-cve-2026-109619/"],["PHP2Shell shutdowns test cyber policy triggers, Insurance Business","https://www.insurancebusinessmag.com/asia/news/cyber/php2shell-shutdowns-test-cyber-policy-triggers-595653.aspx"],["ServiceNow to buy Armis, The Record","https://therecord.media/servicenow-cyber-armis-acquisition"],["Arctic Wolf acquires Sevco","https://www.pulse.bot/cybersecurity/deals/arctic-wolf-acquires-sevco-security-to-boost-exposure-management-de8c0427-565d-4fe2-9477-a54aeb6127d7/"],["Onit Security seed","https://www.startuphub.ai/news/onit-security-raises-11m-for-exposure-management"],["Zafran raises $150M","https://www.letsdatascience.com/news/zafran-security-raises-150-million-automates-vulnerability-f-6c152a48"],["Tenable buys Vulcan Cyber, Globes","https://en.globes.co.il/en/article-1001500792"],["Hosting industry timeline, webhosting.today","https://webhosting.today/2026/10/28/php2shell-timeline-how-the-hosting-industry-reacted/"]]},
+
+triage:{name:"Triage & disclosure",heat:2,q:"Who checks the flood of reports and agrees on a release date?",
+ line:"The layer between finders and maintainers: checking a bug is real, removing duplicates, setting a release date and telling everyone downstream at the same time.",
+ verdict:"Underbuilt and painful. PHP2Shell leaked early from several places, so coordination is a product waiting to be built.",
+ stat:"Before the patch, PHP2Shell details leaked on Hacker News, in an X post and in a proof of concept video released by mistake. An early Chainguard build also showed attackers what code changed.",
+ changing:["Several AI teams now scan the same libraries and report separately, which multiplies the work for maintainers.","The EU Cyber Resilience Act's reporting duties started on Sep 11, 2026: an early warning within 24 hours of an exploited bug, a notification within 72.","GitHub's advisories went out 26 minutes before the announced release time. Every minute of embargo now matters."],
+ models:["Managed disclosure and bug bounty platforms (HackerOne, Patchstack)","Paid review that filters AI reports before maintainers see them (Trail of Bits for Patch the Planet)","CRA reporting handled as a service"],
+ entail:["A neutral clearing house for AI found bugs could charge finders and be paid for by the companies downstream.","Embargoes need to include distributors and CDNs, the parties that shipped or leaked early this time.","CRA turns reporting into a legal duty, so this moves from goodwill to a budget line."],
+ subs:[
+  {name:"Disclosure platforms",d:"Where reports come in and get routed.",cos:[
+   ["HackerOne","scale","Growth stage","Bug bounty and disclosure platform; helps triage for Patch the Planet."],
+   ["Patchstack","early","Venture backed","Coordinates over half of known WordPress ecosystem bugs. Launched managed CRA reporting for open source maintainers on Sep 11, 2026."],
+   ["Trail of Bits","scale","Services firm","Reviews AI findings before they reach maintainers. Its Buttercup system won DARPA's AI Cyber Challenge."]]},
+  {name:"Maintainer triage copilots",ws:true,d:"Tools that verify, dedupe and draft fixes for incoming AI reports on behalf of small volunteer teams.",cos:[
+   ["Project Akrites","early","Open initiative","Verifies findings and syncs disclosure across the parties involved."],
+   ["PHP Foundation security team","big","Alpha Omega grant (May 2026)","One six month, full time engineer in residence to triage reports and build security tooling for PHP."]]}],
+ src:[["PHP2Shell, Wikipedia","https://en.wikipedia.org/wiki/PHP2Shell"],["Why discovery is outrunning repair, Dark Reading","https://darkreading.com/cybersecurity-operations/vulnerability-gap-why-discovery-is-outrunning-repair"],["Patchstack managed CRA reporting","https://patchstack.com/articles/launching-managed-cra-article-14-reporting-for-open-source-maintainers/"],["CRA reporting clock, HeroDevs","https://www.herodevs.com/eu-cyber-resilience-acts"],["PHP Foundation ecosystem security team","https://daily.dev/posts/the-php-foundation-launches-an-ecosystem-security-team-aqnofymwe"]]},
+
+upstream:{name:"Upstream maintenance",heat:3,q:"Who actually writes the fix for open source?",
+ line:"The volunteers and small foundations that maintain the code everyone runs. This is where PHP2Shell waited: a core developer found part of the bug in a 2024 audit, and the team could not agree on a fix.",
+ verdict:"The real choke point, and mostly unpaid. Money is arriving as grants, not yet as companies.",
+ stat:"The PHP Foundation had 13 full and part time staff, for a language used by about 69% of websites with a known server language.",
+ changing:["A 2024 audit paid for by Germany's Sovereign Tech Agency found 17 security findings in PHP core, the first outside audit in over ten years.","One Czech volunteer, Ondřej Surý, built the installable packages for old PHP versions during the crisis.","Europe is piloting a European Sovereign Tech Fund under Digital Commons EDIC, modeled on Germany's."],
+ models:["Public grants (Sovereign Tech Agency) and industry funds (Alpha Omega, OpenSSF)","Corporate sponsors of foundations (PHP Foundation sponsors)","AI labs donating model time and engineers (Patch the Planet, Glasswing)"],
+ entail:["If maintainers stay unpaid, AI discovery just makes the queue longer. Whoever pays the fixers sets the internet's patch speed.","A company could sell maintenance as a service: AI drafts plus paid experts who own fixes for critical projects.","CRA gives open source stewards light duties, which may push foundations to professionalize and buy tooling."],
+ subs:[
+  {name:"Foundations and funders",d:"Who keeps the lights on today.",cos:[
+   ["PHP Foundation","big","Nonprofit, 13 staff","Maintains PHP and relies on donations and sponsors."],
+   ["Alpha Omega / OpenSSF","big","Linux Foundation","Funded PHP's ecosystem security role in 2026."],
+   ["Sovereign Tech Agency","big","German public agency","Paid for the 2024 PHP core audit; the model for EU level funding."]]},
+  {name:"AI help for maintainers",d:"Tools and programs that draft and review fixes.",cos:[
+   ["OpenAI Patch the Planet","big","Frontier lab program","Starts each project by asking maintainers where help is needed, and filters reports first."],
+   ["Trail of Bits Buttercup","scale","Open source, AIxCC winner","Automated find and patch system released by Trail of Bits."]]},
+  {name:"Paid maintenance",ws:true,d:"Commercial teams that take responsibility for fixes in critical projects, paid by the companies that depend on them.",cos:[
+   ["HeroDevs Sustainability Fund","scale","$20M fund","HeroDevs pledged money to open source creators next to its paid support business."]]}],
+ src:[["PHP2Shell, Wikipedia","https://en.wikipedia.org/wiki/PHP2Shell"],["PHP2Shell and digital sovereignty, Leuphana","https://www.leuphana.de/en/current-affairs/university-news/singleview/2026/10/26/the-php2shell-incident-and-what-it-reveals-about-digital-sovereignty.html"],["PHP Foundation ecosystem security team","https://daily.dev/posts/the-php-foundation-launches-an-ecosystem-security-team-aqnofymwe"],["Patch the Planet, CSO","https://www.csoonline.com/article/4188321/openai-rolls-out-ai-led-push-to-fix-open-source-software-flaws.html"],["HeroDevs $20M sustainability fund","https://www.herodevs.com/blog-posts/herodevs-launches-20-million-sustainability-fund-for-open-source-creators-to-secure-end-of-life-software"]]},
+
+backport:{name:"Backports & old versions",heat:3,q:"Who patches the versions nobody officially supports?",
+ line:"Companies that keep end of life software safe by building fixes for old branches. PHP 7.4, 8.0 and 8.1 got source patches only, with no official builds.",
+ verdict:"The clearest paid market on the map. The long tail of old versions is huge, and AI makes backports cheaper to write.",
+ stat:"About 35% of WordPress sites run a PHP version the project no longer supports.",
+ changing:["CloudLinux and cPanel shipped backports, but CloudLinux's stable fix landed more than ten hours after the advisories, and shared hosts waited on it.","Backports keep old version strings, so customers had to check build dates to know if they were safe.","Hardened image vendors are consolidating: Echo bought Minimus's assets after it wound down (Aug 2026)."],
+ models:["Yearly support contracts for retired frameworks (HeroDevs, TuxCare)","Hardened images rebuilt continuously, priced per image (Chainguard, Echo)","Drop in patched packages for old dependencies (Seal)"],
+ entail:["CRA makes old, unsupported code a compliance problem from Sep 2026, so buyers now have a legal reason to pay.","If AI writes the backport, the moat is testing it across many old setups and standing behind it.","Hosts that wait on one upstream package are a single point of delay for millions of sites."],
+ subs:[
+  {name:"Support for retired versions",d:"Paid fixes for software its makers stopped supporting.",cos:[
+   ["HeroDevs","scale","$125M from PSG (Jul 2025)","Ongoing support for deprecated open source; sells it as CRA cover for old dependencies."],
+   ["TuxCare / CloudLinux","scale","Growth stage","Ships the alt-php backports many shared hosts used for PHP2Shell."],
+   ["Seal Security","early","Series A, $13M (Jul 2025)","Israel. Patches open source dependencies, OS packages and base images across languages."]]},
+  {name:"Hardened builds",d:"Rebuilding open source from source with fixes applied.",cos:[
+   ["Chainguard","scale","Series D, $356M at $3.5B (2025)","Rebuilds open source from source. Shipped PHP2Shell fixes early, which also showed attackers the diff."],
+   ["Echo","early","Series A, $35M led by N47 (Dec 2025)","AI agents rebuild artifacts with vetted repairs; bought Minimus's assets in Aug 2026."],
+   ["Minimus","acq","Assets bought by Echo (Aug 2026)","Minimal hardened containers; wound down after a $51M seed."]]}],
+ src:[["2.24M PHP hosts, 59% unfixed, CybelAngel","https://cybelangel.com/es/blog/critical-php-rce-vulnerabilities-cve-2026-109618-and-cve-2026-109619/"],["Hosting industry timeline, webhosting.today","https://webhosting.today/2026/10/28/php2shell-timeline-how-the-hosting-industry-reacted/"],["HeroDevs raises $125M, SecurityWeek","https://www.securityweek.com/herodevs-raises-125-million-to-secure-deprecated-oss/"],["Seal Security Series A, SiliconANGLE","https://siliconangle.com/2025/07/29/seal-security-raises-13m-scale-automated-open-source-vulnerability-remediation/"],["Echo acquires Minimus, SiliconANGLE","https://siliconangle.com/2026/08/27/vulnerability-free-container-image-startup-echo-acquires-minimus/"],["Chainguard Series D, SecurityWeek","https://www.securityweek.com/chainguard-raises-hefty-356m-series-d-at-3-5-billion-valuation/"]]},
+
+agents:{name:"Remediation agents",heat:3,q:"Can AI do the work between finding and fixing?",
+ line:"AI agents inside a company that find who owns each bug, open the ticket, make the change and check it landed. The work security teams have always done by hand.",
+ verdict:"Hot and well funded, but mostly aimed at a company's own code and cloud. Few touch the open source and old servers PHP2Shell hit.",
+ stat:"Only 18% of organizations use AI agents for vulnerability management, though over half use them to detect threats (IBM, cited by Dark Reading).",
+ changing:["Over $200M went into remediation agents in about a year: Zafran $150M, Cogent $42M, Furl $10M, Backline $9M.","Only 9% of teams patch high severity production flaws within 24 hours (CSA survey of 900+ practitioners).","Hands off patching is growing: about 40M of the 150M patch deployments Qualys sees now run with zero touch."],
+ models:["Platform fee plus per asset pricing (Cogent, Zafran)","Agents that open pull requests inside developer tools (Emphere, depthfirst)","Pricing per vulnerability closed is still rare and worth watching"],
+ entail:["These agents are only as good as the patch they can apply. When upstream has no fix, they stall.","Approval gates and audit logs matter as much as speed, because a bad patch causes its own outage.","Expect a split between agents for code (pull requests) and agents for servers and appliances (change control)."],
+ subs:[
+  {name:"Enterprise remediation",d:"Agents that run the fix workflow across a company.",cos:[
+   ["Cogent Security","early","Series A, $42M led by Bain (Feb 2026)","San Francisco, with a New York team. Agents find asset owners, map bugs to services, open tasks and verify fixes; dozens of Fortune 1000 clients."],
+   ["Zafran (NYC)","scale","$150M raised (Mar 2026)","New York. Detects and fixes vulnerabilities autonomously."],
+   ["Furl","early","Seed, $10M led by Ten Eleven","Los Angeles. Founded by Rapid7, Automox and Censys veterans; agents carry out the fix steps."],
+   ["Backline","early","Seed, $9M","Israel and US. A fleet of agents that fix bugs and misconfigurations, asking people via Slack, GitHub or Jira."]]},
+  {name:"Code fixes",d:"Agents that fix bugs where developers work.",cos:[
+   ["Emphere","early","Pre seed, $2.1M","Seattle. Automates vulnerability fixes in the build pipeline."],
+   ["Dazz","acq","Acquired by Wiz, $450M (Nov 2024)","Remediation layer now inside Wiz, itself part of Google."]]}],
+ src:[["Cogent raises $42M, SiliconANGLE","https://siliconangle.com/2026/02/18/cogent-security-raises-42m/"],["Zafran raises $150M","https://www.letsdatascience.com/news/zafran-security-raises-150-million-automates-vulnerability-f-6c152a48"],["Furl seed, SecurityWeek","https://www.securityweek.com/furl-raises-10-million-for-autonomous-vulnerability-remediation/amp/"],["Backline seed, SecurityWeek","https://www.securityweek.com/backline-emerges-from-stealth-with-vulnerability-remediation-platform-9m-in-funding/amp/"],["Emphere pre seed, Dealroom","https://dealroom.co/news/133795-emphere-raises-2-1m-pre-seed-to-automate-software-vulnerability-patching/"],["Wiz acquires Dazz, TechCrunch","https://techcrunch.com/2024/11/21/wiz-acquires-dazz-for-450m-to-expand-its-cybersecurity-platform"],["Why discovery is outrunning repair, Dark Reading","https://darkreading.com/cybersecurity-operations/vulnerability-gap-why-discovery-is-outrunning-repair"]]},
+
+shield:{name:"Virtual patching & runtime",heat:2,q:"How do you stay safe in the hours before the patch lands?",
+ line:"Rules at the network edge or inside the running app that block an exploit without changing the code. Cloudflare had PHP2Shell rules live about 9 hours before public disclosure.",
+ verdict:"It worked this time, but it buys hours, not safety. Edge players own it; runtime is where startups still raise.",
+ stat:"Cloudflare's rules went live at 03:02 UTC on Oct 21. By 11:00 that day, Imunify360 saw exploit tool traffic reach more than 3,600 servers.",
+ changing:["Attackers changed their payloads within hours to slip past firewall rules.","Servers reachable directly by IP never pass through the edge, so those rules miss them.","A third flaw, CVE-2026-115560, came out on Oct 23 and the patches do not fix it. The only stopgap is a config change."],
+ models:["Bundled into CDN and firewall plans, free tier included (Cloudflare)","Server security suites sold to hosts (Imunify360)","Runtime agents priced per workload (Oligo)"],
+ entail:["The value is how fast you can write a rule, which AI can speed up. It is a race between rule writers and attackers changing payloads.","Runtime tools that know which library functions actually run can tell a company it is not exposed and spare it a shutdown.","For insurers, a verified shield could count as mitigation and keep cover in place."],
+ subs:[
+  {name:"Edge and firewall",d:"Blocking attacks before they reach the server.",cos:[
+   ["Cloudflare","big","Incumbent","Protected free customers automatically and invited researchers to try to break its PHP2Shell rules."],
+   ["Imunify360","scale","CloudLinux product","Shipped its first PHP2Shell ruleset to shared hosts at 09:08 UTC on Oct 21."],
+   ["Pantheon","scale","Managed hosting","Its network rules blocked over 60,000 suspicious requests on Oct 21."]]},
+  {name:"Runtime protection",d:"Watching the app itself while it runs.",cos:[
+   ["Oligo Security","scale","$60M (Aug 2026), ~$140M total","Sees which library functions really run and blocks exploits at runtime; revenue up 300% in a year."]]}],
+ src:[["Cloudflare blocked PHP2Shell 9 hours early, PPC Land","https://ppc.land/cloudflare-blocks-php2shell-exploits-9-hours-before-php-flaws-went-public/"],["Hosting industry timeline, webhosting.today","https://webhosting.today/2026/10/28/php2shell-timeline-how-the-hosting-industry-reacted/"],["Third PHP2Shell flaw, SecureWorld","https://www.secureworld.io/industry-news/php2shell-not-over-new-rce-flaw"],["Oligo raises $60M, SiliconANGLE","https://siliconangle.com/2026/08/04/oligo-security-raises-60m-ai-speeds-exploit-development/"]]},
+
+rollout:{name:"Patch testing & rollout",heat:3,q:"How do you prove a patch will not break the site?",
+ line:"Testing that a fix works on old, fragile apps before it goes live, then rolling it out in stages. This is why big companies wait weeks while attackers move in hours.",
+ verdict:"The thinnest zone on the map, and the one that sets patch speed for large companies. A clear white space.",
+ stat:"Complex enterprise apps take about five months and ten days to fix once a patch is ready for testing (Qualys, cited by CSA).",
+ changing:["Only 9% of teams patch high severity production flaws within 24 hours; 74% take one to seven days.","During PHP2Shell, one.com patched about 80 minutes after the advisories, while Liquid Web tested in staging first.","Chrome is piloting security releases twice a week, a sign vendors want smaller, safer updates."],
+ models:["Attack simulation and validation platforms (Picus)","Patch automation suites (Qualys)","Copies of production for rehearsing a patch, still early"],
+ entail:["Whoever can certify a patch as safe for a given setup in minutes removes the main reason companies wait.","The same copy of production can test fixes written by agents, so it pairs naturally with remediation agents.","CSA tells boards to track the gap between finding and fixing as its own risk metric."],
+ subs:[
+  {name:"Validation",d:"Checking that a fix closes the hole and nothing else breaks.",cos:[
+   ["Picus Security","scale","Growth stage","Its Swarm platform simulates attacks and triggers fixes, aiming to cut a four day process to minutes."],
+   ["Qualys","big","Public","Sees about 40M of 150M patch deployments now run with zero touch."]]},
+  {name:"Safe rollout for old apps",ws:true,d:"Test a patch against a copy of the real app and its old dependencies, roll it out in stages, keep a rollback ready.",cos:[
+   ["one.com","big","Shared hosting","Earliest timed PHP2Shell patch, about 80 minutes after the advisories."],
+   ["Liquid Web","big","Managed hosting","Tested PHP2Shell fixes in staging before touching production."]]}],
+ src:[["AI discovery outpacing patch capacity, CSA","https://labs.cloudsecurityalliance.org/research/csa-research-note-ai-vulnerability-discovery-patch-capacity/"],["Hosting industry timeline, webhosting.today","https://webhosting.today/2026/10/28/php2shell-timeline-how-the-hosting-industry-reacted/"],["Glasswing found the bugs, who fixes them","https://www.pulse.bot/cybersecurity/news/project-glasswing-proved-ai-can-find-the-bugs-whos-going-to-fix-them-fa0c7416-3106-438c-b4c9-a5e80e05b3fe/"]]},
+
+insure:{name:"Cyber insurance",heat:2,q:"Who pays when the internet has to go offline?",
+ line:"Insurers, reinsurers and risk modelers working out what PHP2Shell costs. The first losses came from sites shutting down as a precaution, not from breaches.",
+ verdict:"Patch speed is about to become a priced variable. Whoever measures it per company becomes the insurers' data supplier.",
+ stat:"Marsh Re expects business interruption to drive losses, rated medium to high, especially for online retailers.",
+ changing:["Policy wording is being tested: does a voluntary shutdown count as a covered loss?","Coalition says its policy has no clause that blocks cover if a client skips the patch. Other carriers vary.","CyberCube says this is not a 1 in 200 year catastrophe; AM Best calls it the systemic scenario insurers have long feared."],
+ models:["Underwriting with outside in scans (Coalition, Cowbell)","Catastrophe models sold to carriers (CyberCube, Moody's)","Broker advice on wording (Marsh)"],
+ entail:["Expect terms or prices tied to time to patch, which creates demand for proof of patching.","Small and mid sized firms face the longest tails, so that is where insurers will push tools.","A shared dataset of PHP2Shell incidents would be valuable, and none exists publicly."],
+ subs:[
+  {name:"Carriers and brokers",d:"Who writes and places the policies.",cos:[
+   ["Coalition","scale","Insurtech","No clause blocking cover for skipped patches."],
+   ["Cowbell","scale","Insurtech","Told brokers to check now how policies treat a voluntary shutdown."],
+   ["Marsh Re","big","Reinsurance broker","Places PHP2Shell between routine patching and catastrophe, closer to routine for now."],
+   ["Beazley","big","Carrier","Warned that PHP inside security appliances is easy to miss."]]},
+  {name:"Risk modeling",d:"Who prices the tail.",cos:[
+   ["CyberCube","scale","Risk modeler","Says PHP2Shell is not a 1 in 200 year event."],
+   ["Moody's","big","Ratings and models","Published a PHP2Shell exploitation note for insurers."]]}],
+ src:[["PHP2Shell shutdowns test cyber policy triggers, Insurance Business","https://www.insurancebusinessmag.com/asia/news/cyber/php2shell-shutdowns-test-cyber-policy-triggers-595653.aspx"],["PHP2Shell under active exploitation, Moody's","https://www.moodys.com/web/en/us/insights/insurance/PHP2Shell-critical-PHP-vulnerabilities-under-active-exploitation.html"]]},
+
+rules:{name:"Rules & accountability",heat:2,q:"Who is responsible when a shared component breaks?",
+ line:"Governments and regulators deciding who must patch, report and pay. PHP2Shell is the first big test of the EU Cyber Resilience Act.",
+ verdict:"Regulation is turning patching from goodwill into a duty, which creates buyers for every zone to its left.",
+ stat:"CRA fines reach €15M or 2.5% of global turnover. Reporting started Sep 11, 2026; the full rules apply from Dec 11, 2027.",
+ changing:["CISA added both CVEs to its Known Exploited list with an Oct 29 deadline for federal agencies.","NSA, CERT EU and the UK NCSC told sites to go offline if they could not patch. Finland, the Netherlands and France's Interior Ministry did.","CISA's BOD 26-04 directive cites exploitation sped up by AI as its reason."],
+ models:["Compliance tooling for CRA reporting (Patchstack, HeroDevs)","Software inventories for regulators","Public funding of maintenance (Sovereign Tech Agency)"],
+ entail:["Manufacturers become liable for the open source they ship, so they will pay someone to maintain it.","A government shutdown order is a demand signal: agencies will buy whatever keeps them online next time.","Clear rules on who owns a fix could create a new kind of company: the accountable maintainer."],
+ subs:[
+  {name:"Regulators and agencies",d:"Who sets deadlines and duties.",cos:[
+   ["CISA","big","US agency","Its Known Exploited list and directives set federal patch deadlines."],
+   ["EU Cyber Resilience Act","big","EU law","24 hour, 72 hour and 14 day reporting for exploited bugs."],
+   ["CERT EU and UK NCSC","big","Agencies","Advised European bodies to take sites offline until patched."]]}],
+ src:[["PHP2Shell, Wikipedia","https://en.wikipedia.org/wiki/PHP2Shell"],["CRA reporting clock, HeroDevs","https://www.herodevs.com/eu-cyber-resilience-acts"],["AI discovery outpacing patch capacity, CSA","https://labs.cloudsecurityalliance.org/research/csa-research-note-ai-vulnerability-discovery-patch-capacity/"],["PHP2Shell shutdowns test cyber policy triggers, Insurance Business","https://www.insurancebusinessmag.com/asia/news/cyber/php2shell-shutdowns-test-cyber-policy-triggers-595653.aspx"]]}
+};
+const ORDER=GROUPS.flatMap(g=>g.ids);
+const groupOf=id=>GROUPS.find(g=>g.ids.includes(id)).g;
+
+const STAKE=[
+ ["Finders","AI labs, research firms, bug hunters","Someone to act on what they report","Maintainers drowning in duplicate reports"],
+ ["Maintainers","PHP Foundation, volunteers","Time, money and verified reports","13 staff; a 2024 fix nobody agreed on"],
+ ["Distributors","Linux distros, CloudLinux, Chainguard","A fix to package, on a shared embargo","Old branches with no official build"],
+ ["Hosts","Shared and managed hosting","Packages they can roll out safely","Waiting on one upstream package"],
+ ["Site owners","Companies, governments, schools","To know what they run and patch it","No inventory; fear of breaking old apps"],
+ ["Shields","CDNs, firewalls, runtime tools","Early details to write rules","Payload changes; traffic that skips the edge"],
+ ["Payers","Insurers, regulators","Proof of who patched and when","No shared data on patch speed"]
+];
+const HYP=[
+ {v:"s",vl:"Supported",n:"1",t:"Finding bugs is no longer the bottleneck",was:"AI made discovery fast; the gap is fixing.",
+  ev:["Of 1,596 bugs Anthropic's discovery reported to open source projects, 97 were fixed when CSA checked.","NIST parked about 29,000 backlogged CVEs as Not Scheduled in April 2026.","Finders are richly funded: XBOW at $1B+, depthfirst at $580M post, RunSybil $40M."],
+  now:"Kept. Discovery is where the money went first, which is exactly why the fix side is underbuilt."},
+ {v:"s",vl:"Supported",n:"2",t:"The choke point is upstream maintenance",was:"Volunteer maintainers cannot absorb AI scale reports.",
+  ev:["A PHP core developer found part of the bug in a 2024 audit; the team could not agree on a fix, so it waited.","The PHP Foundation had 13 staff; one volunteer built packages for old versions.","The PHP security team funded in 2026 is one engineer in residence for six months."],
+  now:"Kept, with a twist: this is funded by grants today. A company can win here only by selling to the people downstream who need the fix."},
+ {v:"p",vl:"Partly",n:"3",t:"You cannot fix what you cannot see",was:"Inventory is the first gap.",
+  ev:["59% of PHP hosts that show a version run a branch with no fix; 740,000 hide their version.","PHP inside firewalls and control panels was attacked too.","But ServiceNow paid $7.75B for Armis and Tenable bought Vulcan: big platforms already own inventory."],
+  now:"Narrowed: the open gap is inventory inside appliances and vendor software, not inventory in general."},
+ {v:"s",vl:"Supported",n:"4",t:"Shields buy time, not safety",was:"Virtual patching matters but is not a fix.",
+  ev:["Cloudflare had rules live about 9 hours before disclosure, and attackers changed payloads within hours.","A third flaw came out two days after the patch, fixable only by a config change.","Oligo raised $60M on runtime blocking, with revenue up 300% in a year."],
+  now:"Kept. Shields are the bridge; the business sits on either side of them, in the fix and in proof the fix is safe."},
+ {v:"c",vl:"Corrected",n:"5",t:"Insurance will force patch speed",was:"Carriers will refuse claims for unpatched systems.",
+  ev:["Early losses came from precautionary shutdowns, not breaches (Marsh Re).","Coalition says it has no clause blocking cover for skipped patches.","Modelers disagree on how systemic this is: CyberCube calls it not a 1 in 200 year event."],
+  now:"Corrected: insurers will price patch speed rather than exclude it. They need data on it first, which is the opening."}
+];
+const WS=[
+ {t:"Backports for the long tail",h:3,p:"AI written, tested fixes for retired branches of PHP and other runtimes, sold as support contracts.",ev:"59% of exposed PHP hosts run unfixed branches; CRA makes old code a compliance issue; HeroDevs raised $125M.",z:"backport"},
+ {t:"Patch proof in minutes",h:3,p:"Rehearse a patch on a copy of the real app and its old dependencies, then certify it safe to ship.",ev:"Five months to fix complex apps once a patch is ready; only 9% patch in 24 hours.",z:"rollout"},
+ {t:"Maintainer triage copilot",h:2,p:"Verify, dedupe and draft fixes for AI reports before they reach a small volunteer team.",ev:"97 of 1,596 Glasswing bugs fixed; PHP has one engineer in residence for ecosystem security.",z:"triage"},
+ {t:"Inventory inside appliances",h:2,p:"Find PHP and other runtimes inside firewalls, routers and control panels that web scanners skip.",ev:"Attacks on firewall management interfaces; old cPanel PHP branches got no fix.",z:"exposure"},
+ {t:"Patch speed score for insurers",h:2,p:"Measured time to patch per company, sold to carriers and brokers who now need it.",ev:"Shutdowns drove early losses; carriers treat skipped patches differently.",z:"insure"}
+];
+const DEALS=[
+ ["ServiceNow","Armis","$7.75B","Acquisition","Dec 2025"],
+ ["Wiz","Dazz","$450M","Acquisition","Nov 2024"],
+ ["Tenable","Vulcan Cyber","~$150M reported","Acquisition","Jan 2025"],
+ ["Arctic Wolf","Sevco Security","Undisclosed","Acquisition","Feb 2026"],
+ ["Echo","Minimus (assets)","Undisclosed","Acquisition","Aug 2026"],
+ ["CyberStarts, Doug Leone","Zafran (NYC)","$150M","Funding","Mar 2026"],
+ ["PSG","HeroDevs","$125M","Funding","Jul 2025"],
+ ["DFJ Growth, Northzone","XBOW","$120M Series C","Funding","Mar 2026"],
+ ["Meritech","depthfirst","$80M Series B","Funding","Mar 2026"],
+ ["Ballistic, Lightspeed and others","Oligo","$60M","Funding","Aug 2026"],
+ ["Bain Capital","Cogent","$42M Series A","Funding","Feb 2026"],
+ ["Khosla","RunSybil","$40M","Funding","Mar 2026"],
+ ["N47","Echo","$35M Series A","Funding","Dec 2025"],
+ ["Vertex Israel","Seal Security","$13M Series A","Funding","Jul 2025"],
+ ["Hetz, Brightmind","Onit Security","$11M seed","Funding","Mar 2026"]
+];
+
+const $=s=>document.querySelector(s);
+const main=$('#main');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const count=z=>Z[z].subs.reduce((a,s)=>a+s.cos.length,0);
+const acqs=z=>Z[z].subs.reduce((a,s)=>a+s.cos.filter(c=>c[1]==='acq').length,0);
+let view={tab:'map',zone:null};
+let lens=false; try{lens=localStorage.getItem('lens')==='1'}catch(e){}
+
+function crumbs(){
+  const c=$('#crumbs');
+  if(view.tab==='thesis'){c.innerHTML='<b>Thesis</b>';return}
+  if(!view.zone){c.innerHTML='<b>System maintenance</b><span>· canvas</span>';return}
+  c.innerHTML=`<button data-go="home">System maintenance</button><span>/</span><span>${esc(groupOf(view.zone))}</span><span>/</span><b>${esc(Z[view.zone].name)}</b>`;
+}
+function setTab(t){
+  view.tab=t; $('#tab-map').setAttribute('aria-selected',t==='map'); $('#tab-thesis').setAttribute('aria-selected',t==='thesis');
+  render();
+}
+$('#tab-map').onclick=()=>{view.zone=null;setTab('map')};
+$('#tab-thesis').onclick=()=>setTab('thesis');
+document.addEventListener('click',e=>{
+  const go=e.target.closest('[data-go]'); if(go){const v=go.dataset.go; closePanel(); if(v==='home'){view.zone=null;setTab('map')} else {view.zone=v; view.tab='map'; $('#tab-map').setAttribute('aria-selected',true);$('#tab-thesis').setAttribute('aria-selected',false); render(); scrollTo(0,0)} }
+  const ch=e.target.closest('[data-co]'); if(ch){const [z,s,i]=ch.dataset.co.split('|');openPanel(z,+s,+i)}
+});
+
+/* ---------- canvas ---------- */
+const FW=310, ROWY=[70,420,770];
+function frameHTML(id,x,y){
+  const z=Z[id];
+  const subs=z.subs.map(s=>`<li><span>${esc(s.name)}</span><span>${s.cos.length}</span></li>`).join('');
+  const a=acqs(id);
+  return `<div class="frame" data-heat="${z.heat}" style="left:${x}px;top:${y}px"><div class="fl"><span># ${esc(groupOf(id))}</span><span>${String(ORDER.indexOf(id)+1).padStart(2,'0')}</span></div>
+  <button class="card" data-zone="${id}" aria-label="Open ${esc(z.name)}"><span class="heat h${z.heat}">${HEAT[z.heat]}</span>
+  <h3>${esc(z.name)}</h3><p class="q">${esc(z.q)}</p><ul>${subs}</ul>
+  <div class="foot"><span class="mini">${count(id)} companies</span>${a?`<span class="mini acq">${a} acquired</span>`:''}${z.subs.some(s=>s.ws)?'<span class="mini" style="color:var(--hot)">white space</span>':''}</div></button></div>`;
+}
+function renderMap(){
+  let world='';
+  GROUPS.forEach(g=>{
+    world+=`<div class="group-label" style="left:${g.x}px;top:22px"><b>${esc(g.g)}</b> · ${g.ids.length} zone${g.ids.length>1?'s':''}</div>`;
+    g.ids.forEach((id,i)=>world+=frameHTML(id,g.x,ROWY[i]));
+  });
+  main.innerHTML=`<div class="view">
+  <section class="wrap intro">
+    <div><h1>AI finds the bug in days. Who fixes it?</h1>
+    <p>Ten zones along the path from finding a flaw to paying for it, built around PHP2Shell. On a laptop, drag the canvas, pinch or use the zoom controls, and click any frame to dive in. On a phone, tap a frame. Every zone ends with the question that matters for a thesis: what would that entail?</p></div>
+    <div class="signal"><div class="k">Why now</div><p>In August 2026 AI helped find two critical flaws in PHP, the language behind about 69% of websites, in code going back to 2012. When they went public on Oct 20, governments in Europe and Canada took sites offline. Good hosts patched in hours, many servers are still exposed, and a third flaw followed on Oct 23.</p></div>
+  </section>
+  <div class="wrap legend">
+    <span><i class="sw" style="background:var(--hot)"></i>Moving fastest</span><span><i class="sw" style="background:var(--warm)"></i>Shifting</span><span><i class="sw" style="background:var(--calm)"></i>Settling</span>
+    <span><span class="tagsw p-big">Incumbent</span></span><span><span class="tagsw p-scale">Scaleup</span></span><span><span class="tagsw p-early">Early stage</span></span><span><span class="tagsw p-acq">Acquired</span></span>
+  </div>
+  <div class="stage ${lens?'heatlens':''}" id="stage">
+    <span class="hint">drag or scroll to pan · pinch or ⌘ scroll to zoom · click a frame</span>
+    <button class="lensbtn" id="lens" aria-pressed="${lens}">◉ Heat lens</button>
+    <div class="world" id="world">${world}</div>
+    <div class="zoomctl"><button id="zout" aria-label="Zoom out">−</button><span class="pct" id="pct">100%</span><button id="zin" aria-label="Zoom in">+</button><button id="zfit" aria-label="Fit to screen" style="font-size:15px">Fit</button></div>
+  </div>
+  <p class="wrap foot-note">Heat reflects how fast deals, launches and funding moved in each zone over the last 12 months, plus how hard PHP2Shell hit it. Company lists mix incumbents and early startups and are illustrative, not exhaustive. Sources sit inside each zone.</p>
+  </div>`;
+  $('#lens').onclick=()=>{lens=!lens;$('#stage').classList.toggle('heatlens',lens);$('#lens').setAttribute('aria-pressed',lens);try{localStorage.setItem('lens',lens?'1':'0')}catch(e){}};
+  initCanvas();
+}
+
+let cam={x:0,y:0,k:1}; const W=1760,H=1100;
+const desktop=()=>matchMedia('(min-width:761px)').matches;
+function apply(anim){const w=$('#world');if(!w)return;w.classList.toggle('anim',!!anim);w.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.k})`;const p=$('#pct');if(p)p.textContent=Math.round(cam.k*100)+'%'}
+function fit(anim){const s=$('#stage');if(!s||!desktop())return;const r=s.getBoundingClientRect();const k=Math.min(r.width/W,r.height/H)*0.98;cam={k,x:(r.width-W*k)/2,y:(r.height-H*k)/2};apply(anim)}
+function zoomAt(f,cx,cy,anim){const k2=Math.max(.2,Math.min(2.5,cam.k*f));cam.x=cx-(cx-cam.x)*(k2/cam.k);cam.y=cy-(cy-cam.y)*(k2/cam.k);cam.k=k2;apply(anim)}
+function initCanvas(){
+  const s=$('#stage'), w=$('#world');
+  fit(false);
+  const ptrs=new Map(); let start=null, moved=0, pinch=null;
+  s.addEventListener('wheel',e=>{if(!desktop())return;e.preventDefault();const r=s.getBoundingClientRect();if(e.ctrlKey||e.metaKey){zoomAt(Math.exp(-e.deltaY*.01),e.clientX-r.left,e.clientY-r.top)}else{cam.x-=e.shiftKey?e.deltaY:e.deltaX;cam.y-=e.shiftKey?0:e.deltaY;apply()}},{passive:false});
+  s.addEventListener('pointerdown',e=>{if(!desktop()||e.target.closest('.zoomctl,.lensbtn'))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;start={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y};if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),k:cam.k}}});
+  s.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(ptrs.size===2&&pinch){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);const r=s.getBoundingClientRect();zoomAt((pinch.k*d/pinch.d)/cam.k,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top);moved=99;return}
+    const dx=e.clientX-start.x,dy=e.clientY-start.y;moved=Math.max(moved,Math.hypot(dx,dy));if(moved>4){s.classList.add('drag');if(!s.hasPointerCapture(e.pointerId))s.setPointerCapture(e.pointerId);cam.x=start.cx+dx;cam.y=start.cy+dy;apply()}});
+  const up=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;s.classList.remove('drag')};
+  s.addEventListener('pointerup',up);s.addEventListener('pointercancel',up);
+  w.addEventListener('click',e=>{const c=e.target.closest('[data-zone]');if(!c)return;if(desktop()&&moved>4){e.preventDefault();return}diveInto(c)});
+  $('#zin').onclick=()=>{const r=s.getBoundingClientRect();zoomAt(1.25,r.width/2,r.height/2,true)};
+  $('#zout').onclick=()=>{const r=s.getBoundingClientRect();zoomAt(.8,r.width/2,r.height/2,true)};
+  $('#zfit').onclick=()=>fit(true);
+}
+addEventListener('resize',()=>{if(view.tab==='map'&&!view.zone)fit(false)});
+function diveInto(card){
+  const id=card.dataset.zone;
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(desktop()&&!reduce){
+    const s=$('#stage').getBoundingClientRect(), f=card.closest('.frame');
+    const fx=parseFloat(f.style.left),fy=parseFloat(f.style.top),fh=f.offsetHeight;
+    const k=Math.min(s.width/(FW+80),s.height/(fh+80),2.4);
+    cam={k,x:s.width/2-(fx+FW/2)*k,y:s.height/2-(fy+fh/2)*k};apply(true);
+    setTimeout(()=>{view.zone=id;render();scrollTo(0,0)},430);
+  } else {view.zone=id;render();scrollTo(0,0)}
+}
+
+/* ---------- zone ---------- */
+function renderZone(id){
+  const z=Z[id], i=ORDER.indexOf(id), prev=ORDER[(i+ORDER.length-1)%ORDER.length], next=ORDER[(i+1)%ORDER.length];
+  const li=a=>a.map(x=>`<li>${esc(x)}</li>`).join('');
+  const subs=z.subs.map((s,si)=>`<div class="sub${s.ws?' ws':''}"><h5>${esc(s.name)}${s.ws?'<small>white space</small>':''}</h5><p class="sd">${esc(s.d)}</p>
+   <div class="chips">${s.cos.map((c,ci)=>`<button class="chip t-${c[1]}" data-co="${id}|${si}|${ci}"><i></i>${esc(c[0])}</button>`).join('')}</div></div>`).join('');
+  main.innerHTML=`<div class="view"><section class="wrap zone">
+   <button class="backbtn" data-go="home">← Back to canvas</button>
+   <div class="zhead">
+     <div><span class="heat h${z.heat}" style="margin-top:16px">${HEAT[z.heat]}</span><h2>${esc(z.name)}</h2><p class="q">${esc(z.q)}</p><p class="line">${esc(z.line)}</p></div>
+     <div class="verdict"><div class="k">My read</div><p>${esc(z.verdict)}</p><div class="stat">${esc(z.stat)}</div></div>
+   </div>
+   <div class="cols">
+     <div class="col"><h4>What is changing fast</h4><ul>${li(z.changing)}</ul></div>
+     <div class="col"><h4>Business models that work</h4><ul>${li(z.models)}</ul></div>
+     <div class="col entail"><h4>What would that entail?</h4><ul>${li(z.entail)}</ul></div>
+   </div>
+   <div class="subs-title">Players · ${count(id)} companies · tap one</div>
+   <div class="subs">${subs}</div>
+   <div class="zonenav"><button data-go="${prev}">← ${esc(Z[prev].name)}</button><button data-go="${next}">${esc(Z[next].name)} →</button></div>
+   <div class="srcs"><b>Sources</b><ol>${z.src.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ol></div>
+  </section></div>`;
+}
+
+/* ---------- panel ---------- */
+function openPanel(zid,si,ci){
+  const z=Z[zid], s=z.subs[si], c=s.cos[ci];
+  const p=$('#panel');
+  p.innerHTML=`<button class="close" id="pclose" aria-label="Close">×</button>
+   <div class="pk">${esc(z.name)} / ${esc(s.name)}</div><h3>${esc(c[0])}</h3>
+   <div class="row"><span class="pill p-${c[1]}">${T[c[1]]}</span><span class="pill p-big" style="background:var(--canvas);color:var(--muted)">${esc(c[2])}</span></div>
+   <p>${esc(c[3])}</p>
+   <div class="ent"><b>Where it sits in the thesis</b>${esc(s.ws?'This sits in a white space: no clear leader yet. ':'')}${esc(z.verdict)}</div>`;
+  p.hidden=false;$('#scrim').hidden=false;$('#pclose').focus();
+  $('#pclose').onclick=closePanel;
+}
+function closePanel(){$('#panel').hidden=true;$('#scrim').hidden=true}
+$('#scrim').onclick=closePanel;
+addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('#panel').hidden)closePanel();else if(view.zone){view.zone=null;render()}});
+
+/* ---------- thesis ---------- */
+function renderThesis(){
+  const hyp=HYP.map(h=>`<div class="h"><div class="v v-${h.v}"><strong>H${h.n}</strong>${h.vl}</div><div><h3>${esc(h.t)}</h3><p class="was">Starting hypothesis: ${esc(h.was)}</p><ul>${h.ev.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><div class="now">${esc(h.now)}</div></div></div>`).join('');
+  const ws=WS.map(w=>`<div class="wsc"><span class="heat h${w.h}">${HEAT[w.h]}</span><h4>${esc(w.t)}</h4><p>${esc(w.p)}</p><p class="ev">${esc(w.ev)}</p><button class="backbtn" data-go="${w.z}">Open ${esc(Z[w.z].name)} →</button></div>`).join('');
+  const rows=DEALS.map(d=>`<tr><td>${esc(d[0])}</td><td><b>${esc(d[1])}</b></td><td class="num">${esc(d[2])}</td><td><span class="lay">${esc(d[3])}</span></td><td class="num">${esc(d[4])}</td></tr>`).join('');
+  const stake=STAKE.map(s=>`<tr><td><b>${esc(s[0])}</b></td><td>${esc(s[1])}</td><td>${esc(s[2])}</td><td>${esc(s[3])}</td></tr>`).join('');
+  main.innerHTML=`<div class="view"><section class="wrap thesis">
+   <h2>System maintenance and security</h2>
+   <p>AI made finding bugs almost free. Fixing still runs on people, and PHP2Shell showed what that costs: a 2024 finding nobody fixed, a volunteer building old packages, governments offline.</p>
+   <div class="zhead" style="margin-top:20px">
+     <div class="verdict"><div class="k">Why it is big and burning</div><p>Finding bugs is now almost free, and fixing them is not. Anthropic's Glasswing project found more than 10,000 flaws in one month and 97 were patched. PHP2Shell, a bug sitting in PHP since 2012, was found with AI and reached about 70% of the web. Most of the world's software cannot be patched quickly, and every gap is a live door for attackers. That is why the budgets are moving now.</p></div>
+     <div class="cols" style="grid-template-columns:1fr;margin-top:0">
+       <div class="col"><h4>Anti thesis</h4><ul><li>The giants close the gap for free. OpenAI, Anthropic and Google fund fixes upstream, Cloudflare shields everyone at the edge, and ServiceNow, Tenable and Wiz fold remediation into their platforms. A startup becomes a feature.</li></ul></div>
+       <div class="col"><h4>Kill signal</h4><ul><li>Lab programs start merging fixes upstream as fast as they find bugs, hosts and distros ship within hours, and the next bug this size gets patched before anyone has to go offline.</li></ul></div>
+     </div>
+   </div>
+   <div class="sec">Stakeholders and what blocks them</div>
+   <p style="color:var(--muted);margin:0">What connects them: nobody is paid to own a fix from start to finish.</p>
+   <div class="tbl"><table><thead><tr><th>Who</th><th>Examples</th><th>What they need</th><th>What blocked them in PHP2Shell</th></tr></thead><tbody>${stake}</tbody></table></div>
+   <div class="sec">Five hypotheses, tested</div>
+   <div class="hyp">${hyp}</div>
+   <div class="sec">Where I would look first</div>
+   <p style="color:var(--muted);margin:0">White spaces where the player map is thin and the business model is clear.</p>
+   <div class="ws-grid">${ws}</div>
+   <div class="sec">Money and deals in the fix chain</div>
+   <div class="tbl"><table><thead><tr><th>Lead or buyer</th><th>Company</th><th>Amount</th><th>Type</th><th>When</th></tr></thead><tbody>${rows}</tbody></table></div>
+   <p class="foot-note">Prices are as reported by the press where companies did not disclose terms. Sources for each figure sit inside the related zone. Research as of Nov 2, 2026; PHP2Shell is still unfolding.</p>
+  </section></div>`;
+}
+
+function render(){
+  crumbs(); closePanel();
+  if(view.tab==='thesis')renderThesis(); else if(view.zone)renderZone(view.zone); else renderMap();
+}
+render();
+</script>
+
+</body></html>
